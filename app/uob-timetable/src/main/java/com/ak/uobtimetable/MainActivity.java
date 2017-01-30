@@ -1,0 +1,488 @@
+package com.ak.uobtimetable;
+
+import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.text.method.LinkMovementMethod;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+
+import java.util.List;
+
+import com.ak.uobtimetable.API.Models;
+import com.ak.uobtimetable.Fragments.SessionListsFragment;
+import com.ak.uobtimetable.Fragments.TermDatesFragment;
+import com.ak.uobtimetable.Utilities.Logger;
+import com.ak.uobtimetable.Utilities.SettingsManager;
+import com.ak.uobtimetable.Utilities.AndroidUtilities;
+
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
+
+    private DrawerLayout dlDrawer;
+    private NavigationView navigationView;
+    private AppBarLayout abAppBar;
+    private CoordinatorLayout clCoordinatorLayout;
+    private Menu meMain;
+
+    private FragmentManager fragmentManager;
+    private SessionListsFragment frSessions;
+    private TermDatesFragment frTermDates;
+    private Fragment currentFragment;
+
+    private SettingsManager settings;
+
+    private final String TITLE_DEFAULT = "UoB timetable";
+    private final String TITLE_TERM_DATES = "Term dates";
+
+    public enum Args {
+        shouldRestore,
+        fragment,
+        currentIndex
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Logger.getInstance().debug("MainActivity", "onCreate");
+
+        settings = SettingsManager.getInstance(this);
+
+        Toolbar toolbar = (Toolbar)findViewById(R.id.tbToolbar);
+        setSupportActionBar(toolbar);
+
+        // Get UI references
+        dlDrawer = (DrawerLayout)findViewById(R.id.drawer_layout);
+        abAppBar = (AppBarLayout)findViewById(R.id.abAppBar);
+        clCoordinatorLayout = (CoordinatorLayout)abAppBar.getParent();
+        meMain = toolbar.getMenu();
+
+        // Init drawer
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, dlDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        dlDrawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        // Change the icon shown in the task switcher to a white icon,
+        // otherwise the icon is red on red
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+            TypedValue typedValue = new TypedValue();
+            Resources.Theme theme = getTheme();
+            theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
+            int colour = typedValue.data;
+
+            Bitmap whiteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.uob_logo);
+
+            ActivityManager.TaskDescription description =
+                    new ActivityManager.TaskDescription(null, whiteIcon, colour);
+            setTaskDescription(description);
+        }
+
+        // If no course, load the welcome activity and clear activity stack
+        if (settings.hasCourse() == false) {
+            Intent intent = new Intent(this, WelcomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return;
+        }
+
+        // Should update sessions
+        SessionListsFragment.InitialLoadMode sessionListsLoadArg;
+        if (savedInstanceState != null && savedInstanceState.getBoolean(Args.shouldRestore.name(), false))
+            sessionListsLoadArg = SessionListsFragment.InitialLoadMode.loadSessionsWithoutSnackbar;
+        else if (shouldUpdate())
+            sessionListsLoadArg = SessionListsFragment.InitialLoadMode.updateSessions;
+        else
+            sessionListsLoadArg = SessionListsFragment.InitialLoadMode.loadSessionsWithSnackbar;
+
+        Logger.getInstance().debug("MainActivity", "sessionListFragmentArg: " + sessionListsLoadArg.name());
+
+        // Init sessions fragment
+        int initialIndex = -1;
+        if (savedInstanceState != null && savedInstanceState.containsKey(Args.currentIndex.name()))
+            initialIndex = savedInstanceState.getInt(Args.currentIndex.name());
+        frSessions = SessionListsFragment.newInstance(sessionListsLoadArg, initialIndex);
+
+        // Init term dates fragment
+        boolean loadTermDates = AndroidUtilities.getNetwork(this) == AndroidUtilities.NetworkType.Infrastructure;
+        frTermDates = TermDatesFragment.newInstance(loadTermDates);
+
+        // Set initial fragment
+        // If sessions
+        String title = TITLE_DEFAULT;
+        int navDrawerSelected = 0;
+        Fragment hideFragment = frTermDates;
+        currentFragment = frSessions;
+        boolean menuVisible = true;
+        // If term dates
+        if (savedInstanceState != null && savedInstanceState.getString(Args.fragment.name(), "").equals("TermDatesFragment")){
+            title = TITLE_TERM_DATES;
+            navDrawerSelected = 1;
+            hideFragment = frSessions;
+            currentFragment = frTermDates;
+            menuVisible = false;
+        }
+
+        Logger.getInstance().debug("MainActivity", "Setting initial fragment: " + currentFragment.getClass().getSimpleName());
+
+        // Commit fragment changes
+        setTitle(title);
+        navigationView.getMenu().getItem(navDrawerSelected).setChecked(true);
+        meMain.setGroupVisible(R.id.grMainGroup, menuVisible);
+
+        fragmentManager = getSupportFragmentManager();
+
+        if (fragmentManager.getFragments() != null) {
+            for (Fragment fragment : fragmentManager.getFragments())
+                fragmentManager.beginTransaction().remove(fragment).commit();
+        }
+
+        fragmentManager.beginTransaction()
+            .add(R.id.flContent, frSessions, frSessions.getClass().getSimpleName())
+            .add(R.id.flContent, frTermDates, frTermDates.getClass().getSimpleName())
+            .show(currentFragment)
+            .hide(hideFragment)
+            .commit();
+
+        fragmentManager.executePendingTransactions();
+
+        // Show rate dialog on X launch
+        if (settings.getLaunchCount() > 7 && settings.getShownRateDialog() == false){
+            AlertDialog d = new AlertDialog.Builder(this)
+                .setNegativeButton("No thanks", null)
+                .setPositiveButton("Sure", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    AndroidUtilities.openPlayStorePage(MainActivity.this);
+                    }
+                })
+                .setTitle("Rate in Play Store")
+                .setMessage("Please rate this application if you find it useful. We wont bother you again.")
+                .create();
+            d.show();
+            settings.setShownRateDialog();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.activity_main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id == R.id.action_refresh) {
+
+            // Warn about lack of network availability
+            if (AndroidUtilities.getNetwork(this) == AndroidUtilities.NetworkType.None){
+                AlertDialog d = new AlertDialog.Builder(this)
+                    .setPositiveButton(R.string.dialog_dismiss, null)
+                    .setTitle(R.string.warning_net_connection)
+                    .setMessage(R.string.net_required_sessions)
+                    .create();
+                d.show();
+            } else {
+                frSessions.updateSessions(settings.getCourse());
+            }
+
+            return true;
+        } else if (id == R.id.action_toggle_hidden) {
+
+            toggleShowHideSessions();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        Logger.getInstance().debug("MainActivity", "NavigationItemSelected: " + item.getTitle());
+
+        boolean set = true;
+        boolean showMenu = true;
+        String title = null;
+
+        boolean exit = false;
+
+        // Set sessions fragment
+        if (id == R.id.nav_sessions) {
+            title = TITLE_DEFAULT;
+            currentFragment = frSessions;
+            fragmentManager.beginTransaction().hide(frTermDates).show(frSessions).commit();
+            AndroidUtilities.trySetElevation(abAppBar, 0);
+        }
+        // Set term dates fragment
+        else if (id == R.id.nav_termdates){
+
+            // Warn about lack of network availability
+            if (AndroidUtilities.getNetwork(this) == AndroidUtilities.NetworkType.None){
+                AlertDialog d = new AlertDialog.Builder(this)
+                    .setPositiveButton(R.string.dialog_dismiss, null)
+                    .setTitle(R.string.warning_net_connection)
+                    .setMessage(R.string.net_required_term_dates)
+                    .create();
+                d.show();
+                set = false;
+                exit = true;
+            } else {
+                title = TITLE_TERM_DATES;
+                showMenu = false;
+                currentFragment = frTermDates;
+                fragmentManager.beginTransaction().hide(frSessions).show(frTermDates).commit();
+                AndroidUtilities.trySetElevation(abAppBar, TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
+                frTermDates.tryLoad();
+            }
+        }
+        // Open course activity, don't change nav button
+        else if (id == R.id.nav_course) {
+
+            set = false;
+
+            // Warn about lack of network availability
+            if (AndroidUtilities.getNetwork(this) == AndroidUtilities.NetworkType.None){
+                AlertDialog d = new AlertDialog.Builder(this)
+                    .setPositiveButton(R.string.dialog_dismiss, null)
+                    .setTitle(R.string.warning_net_connection)
+                    .setMessage(R.string.net_required_courses)
+                    .create();
+                d.show();
+                exit = true;
+            } else {
+                startActivity(new Intent(this, CourseListActivity.class));
+            }
+        }
+        // Open settings activity, don't change nav button
+        else if (id == R.id.nav_settings) {
+            set = false;
+            startActivity(new Intent(this, SettingsActivity.class));
+        }
+        else if (id == R.id.nav_rate){
+            AndroidUtilities.openPlayStorePage(this);
+            set = false;
+        }
+        // Open about dialog, don't change nav button
+        else if (id == R.id.nav_about) {
+            showAbout();
+            set = false;
+        }
+
+        if (exit == false) {
+
+            // Set title
+            if (title != null)
+                setTitle(title);
+
+            // Set menu visibility
+            meMain.setGroupVisible(R.id.grMainGroup, showMenu);
+        }
+
+        // Close drawer, change active nav button, if changed
+        dlDrawer.closeDrawer(GravityCompat.START);
+        return set;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+
+        Logger.getInstance().debug("MainActivity", "Saving state");
+        savedInstanceState.putBoolean(Args.shouldRestore.name(), true);
+
+        // Save the current fragment
+        if (currentFragment != null) {
+            String currentFragmentClass = currentFragment.getClass().getSimpleName();
+            Logger.getInstance().debug("MainActivity", "Saving current fragment: " + currentFragmentClass);
+            savedInstanceState.putString(Args.fragment.name(), currentFragmentClass);
+        }
+
+        // Save current index in the SessionListsFragment ViewPager
+        if (frSessions != null) {
+            int currentIndex = frSessions.getSelectedIndex();
+            savedInstanceState.putInt(Args.currentIndex.name(), currentIndex);
+            Logger.getInstance().debug("MainActivity", "Saving current index: " + currentIndex);
+        }
+
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    public void updateNavDrawerLabels(Models.Course course, List<Models.DisplaySession> sessions){
+
+        boolean showingHiddenSessions = settings.getShowHiddenSessions();
+
+        View navHeaderView = navigationView.getHeaderView(0);
+        TextView tvCourseName = (TextView)navHeaderView.findViewById(R.id.tvCourseName);
+        TextView tvCourseDetails = (TextView)navHeaderView.findViewById(R.id.tvCourseDetails);
+        TextView tvSessions = (TextView)navHeaderView.findViewById(R.id.tvSessionCount);
+
+        tvCourseName.setText(course.nameStart);
+        tvCourseDetails.setText(course.nameEnd);
+
+        int sessionCount = 0;
+        float hours = 0;
+        for (Models.DisplaySession s : sessions) {
+            if (s.visible == true || showingHiddenSessions == true) {
+                hours += s.length;
+                sessionCount++;
+            }
+        }
+
+        String hoursStr = String.format("%.1f", hours);
+        if ((int)hours == hours)
+            hoursStr = (int)hours + "";
+
+        tvSessions.setText(sessionCount + " sessions, " + hoursStr + " hours total");
+    }
+
+    private void toggleShowHideSessions(){
+
+        // Can't toggle when we're in edit mode, warn user
+        if (frSessions.getEditMode() == true) {
+            AlertDialog d = new AlertDialog.Builder(this)
+                .setPositiveButton(R.string.dialog_dismiss, null)
+                .setTitle(R.string.warning_cant_toggle_show_hide)
+                .setMessage(R.string.text_cant_toggle_show_hide)
+                .create();
+            d.show();
+            return;
+        }
+
+        List<Models.DisplaySession> sessions = settings.getSessions();
+
+        // Toggle value
+        boolean showingHidden = settings.toggleShowHiddenSessions();
+
+        Logger.getInstance().debug("MainActivity", "toggleShowHideSessions - Showing hidden: " + showingHidden);
+
+        // Show message
+        showSessionSnackbar(sessions, showingHidden, false);
+
+        // Update fragment
+        frSessions.refreshLists();
+    }
+
+    public void showSessionSnackbar(List<Models.DisplaySession> sessions, boolean showingHidden,
+                                    boolean showSavedTime){
+
+        // Count sessions
+        int sessionCount = sessions.size();
+
+        // Count visible sessions
+        int visibleSessions = 0;
+        for (Models.DisplaySession session : sessions) {
+            if (session.visible == true)
+                visibleSessions++;
+        }
+
+        // Build string
+        StringBuilder sb = new StringBuilder();
+
+        // Add session count
+        if (showingHidden == false && sessionCount != visibleSessions)
+            sb.append("Showing " + visibleSessions+ " of " + sessionCount);
+        else
+            sb.append("Showing all " + sessionCount);
+        sb.append(" sessions");
+
+        // Add datetime when the sessions were cached, if applicable
+        if (showSavedTime)
+            sb.append(", last updated " + settings.getSessionsUpdatedTimeAgo());
+
+        // Show snackbar
+        Snackbar.make(clCoordinatorLayout, sb.toString(), Snackbar.LENGTH_LONG).show();
+    }
+
+    private boolean shouldUpdate(){
+
+        AndroidUtilities.NetworkType network =  AndroidUtilities.getNetwork(this);
+
+        if (network == AndroidUtilities.NetworkType.Cellular && settings.getRefreshCellular())
+            return true;
+        else if (network == AndroidUtilities.NetworkType.Infrastructure && settings.getRefreshWiFi())
+            return true;
+
+        return false;
+    }
+
+    private void showAbout(){
+
+        String version = AndroidUtilities.buildVersionName(this);
+
+        String contactUri = Uri.parse("https://adriankeenan.co.uk/contact/")
+            .buildUpon()
+            .appendQueryParameter("subject", "UoB Timetable for Android")
+            .build()
+            .toString();
+        String title = String.format("About (version %s)", version);
+        String body = String
+            .format("Developed by <a href=\"https://adriankeenan.co.uk\">Adrian Keenan</a>. " +
+                "Source code available on <a href=\"https://github.com/adriankeenan\">GitHub</a>.<br><br>" +
+                "Third-party libraries:<br>" +
+                "<a href=\"http://square.github.io/okhttp/\">square/okhttp</a> (Apache 2.0)<br>" +
+                "<a href=\"https://github.com/google/gson\">google/gson</a> (Apache 2.0)<br>" +
+                "<a href=\"https://commons.apache.org/proper/commons-lang/\">apache/commons-lang</a> (Apache 2.0)<br>" +
+                "<a href=\"https://github.com/h6ah4i/android-tablayouthelper\">h6ah4i/android-tablayouthelper</a> (Apache 2.0)<br>"+
+                "<br>" +
+                getString(R.string.text_disclaimer),
+                contactUri);
+
+        AlertDialog d = new AlertDialog.Builder(this)
+            .setPositiveButton(R.string.dialog_dismiss, null)
+            .setTitle(title)
+            .setMessage(AndroidUtilities.fromHtml(body))
+            .create();
+        d.show();
+
+        // Make the TextView clickable. Must be called after show()
+        ((TextView)d.findViewById(android.R.id.message))
+            .setMovementMethod(LinkMovementMethod.getInstance());
+    }
+}

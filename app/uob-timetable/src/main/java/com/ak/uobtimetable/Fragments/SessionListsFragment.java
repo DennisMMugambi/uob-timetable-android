@@ -1,0 +1,426 @@
+package com.ak.uobtimetable.Fragments;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import com.ak.uobtimetable.API.Service;
+import com.ak.uobtimetable.API.Models;
+import com.ak.uobtimetable.MainActivity;
+import com.ak.uobtimetable.R;
+import com.ak.uobtimetable.Utilities.GeneralUtilities;
+import com.ak.uobtimetable.Utilities.Logger;
+import com.ak.uobtimetable.Utilities.SettingsManager;
+import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
+
+/**
+ * Fragment containing a ViewPager with one SessionListFragment for each day.
+ */
+public class SessionListsFragment extends Fragment {
+
+    private View view;
+    private ProgressBar pbDownload;
+    private ViewPager viewPager;
+
+    private List<Models.DisplaySession> sessions;
+    private Models.Course course;
+    private boolean editMode;
+    private SettingsManager settings;
+    private MainActivity activity;
+
+    public enum InitialLoadMode {
+        loadSessionsWithSnackbar,
+        loadSessionsWithoutSnackbar,
+        updateSessions
+    }
+
+    public enum Args {
+        load,
+        save,
+        initialIndex
+    }
+
+    public SessionListsFragment() {
+
+        // Required empty public constructor
+    }
+
+    public static SessionListsFragment newInstance(InitialLoadMode loadMode, int tabIndex) {
+
+        SessionListsFragment fragment = new SessionListsFragment();
+        Bundle args = new Bundle();
+        args.putString(Args.load.name(), loadMode.toString());
+        args.putInt(Args.initialIndex.name(), tabIndex);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        Logger.getInstance().debug("SessionListsFragment", "onCreateView");
+
+        // Inflate the preferences for this fragment
+        view = inflater.inflate(R.layout.fragment_session_lists, container, false);
+
+        pbDownload = (ProgressBar)view.findViewById(R.id.pbDownload);
+        pbDownload.setVisibility(View.INVISIBLE);
+
+        activity = (MainActivity)getActivity();
+
+        settings = SettingsManager.getInstance(activity);
+        course = settings.getCourse();
+        sessions = settings.getSessions();
+
+        int initialIndex = getArguments().getInt(Args.initialIndex.name(), -1);
+        InitialLoadMode mo = InitialLoadMode.valueOf(getArguments().getString(Args.load.name()));
+        Logger.getInstance()
+            .debug("SessionListsFragment", "loadArgument: " + mo.name())
+            .debug("SessionListsFragment", "initialIndex: " + initialIndex);
+
+        if (savedInstanceState != null && savedInstanceState.getBoolean(Args.save.name(), false)) {
+
+        } else if (mo == InitialLoadMode.loadSessionsWithoutSnackbar && settings.hasSessions() && settings.hasCourse()){
+            setSessions(course, sessions, initialIndex);
+        }
+        else if (mo == InitialLoadMode.loadSessionsWithSnackbar) {
+
+            setSessions(course, sessions, initialIndex);
+            activity.showSessionSnackbar(sessions, settings.getShowHiddenSessions(), true);
+        }
+        else {
+            updateSessions(course);
+        }
+
+        return view;
+    }
+
+    /**
+     * Downloads the sessions for the selected course and updates the session lists
+     * @param course
+     */
+    public void updateSessions(Models.Course course){
+
+        pbDownload.setVisibility(View.VISIBLE);
+        new DownloadSessionsTask(this, course).execute();
+    }
+
+    /**
+     * Re-initialises the session list views with session data stored in settings
+     */
+    public void refreshLists(){
+
+        setSessions(settings.getCourse(), settings.getSessions(), getSelectedIndex());
+    }
+
+    /**
+     * Update the UI for a given list of sessions
+     * @param course
+     * @param sessions
+     * @param initialIndex
+     */
+    private void setSessions(Models.Course course, List<Models.DisplaySession> sessions,
+                            int initialIndex){
+
+        // Cache data
+        this.sessions = sessions;
+        this.course = course;
+
+        // Show all sessions when hidden sessions visible or in edit mode
+        boolean showingHiddenSessions = settings.getShowHiddenSessions() || editMode;
+
+        // Init view pager
+        viewPager = (ViewPager)view.findViewById(R.id.viewpager);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
+
+        // Add a fragment for each day
+        for (int day = 0; day <= 4; day++){
+
+            // Get sessions for day
+            List<Models.DisplaySession> thisDaysSessions = new ArrayList<>();
+            for (Models.DisplaySession session : sessions){
+                if (session.day == day && (session.visible || showingHiddenSessions))
+                    thisDaysSessions.add(session);
+            }
+
+            // Create fragment
+            adapter.addFrag(SessionListFragment.newInstance(thisDaysSessions, this));
+
+            Logger.getInstance().debug("SessionListsFragment", thisDaysSessions.size() + " sessions for day " + day);
+        }
+
+        viewPager.setAdapter(adapter);
+        viewPager.setOffscreenPageLimit(5);
+
+        TabLayout tabLayout = (TabLayout)view.findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
+        // Initialise the helper which switches the tab mode between
+        // scrollable and centre gravity
+        TabLayoutHelper mTabLayoutHelper = new TabLayoutHelper(tabLayout, viewPager);
+        mTabLayoutHelper.setAutoAdjustTabModeEnabled(true);
+
+        // Switch to the current day or predefined index
+        int index = 0;
+        if (initialIndex > -1){
+            index = initialIndex;
+        } else {
+            int currentDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2;
+            if (currentDayOfWeek >= 0 && currentDayOfWeek <= 4)
+                index = currentDayOfWeek;
+        }
+        viewPager.setCurrentItem(index, true);
+
+        Logger.getInstance().debug("SessionListsFragment", "Refreshed ViewPager");
+
+        // Update the course text labels in navigation drawer
+        activity.updateNavDrawerLabels(course, sessions);
+
+        // Show tutorial message boxes
+        if (settings.getCompletedTutorial() == false){
+
+            // First message
+            AlertDialog d = new AlertDialog.Builder(activity)
+                .setTitle("Just so you know...")
+                .setMessage(getString(R.string.text_tutorial_disclaimer))
+                .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        // Second message
+                        AlertDialog d = new AlertDialog.Builder(activity)
+                            .setTitle("One more thing...")
+                            .setMessage(getString(R.string.text_tutorial_hide_sessions))
+                            .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    settings.setCompletedTutorial();
+                                }
+                            })
+                            .create();
+                        d.show();
+                    }
+                })
+                .create();
+            d.show();
+        }
+    }
+
+    /**
+     * Gets the selected index (day) of the ViewPager holding the SessionListFragments
+     * @return
+     */
+    public int getSelectedIndex(){
+
+        if (viewPager == null)
+            return -1;
+
+        return viewPager.getCurrentItem();
+    }
+
+    public boolean toggleEditMode(){
+
+        return setEditMode(!editMode);
+    }
+
+    public boolean getEditMode(){
+
+        return editMode;
+    }
+
+    private boolean setEditMode(boolean editMode){
+
+        this.editMode = editMode;
+
+        Logger.getInstance().debug("SessionListsFragment", "Set edit mode: " + editMode);
+
+        int hiddenSessions = 0;
+        for (Models.DisplaySession s : sessions) {
+            if (s.visible == false)
+                hiddenSessions++;
+        }
+        Logger.getInstance().debug("SessionListsFragment", "Hidden session count: " + hiddenSessions);
+
+        refreshLists();
+
+        return editMode;
+    }
+
+    /**
+     * Updates the state of the given session in the saved session list.
+     * @param session
+     */
+    public void updateSession(Models.DisplaySession session){
+
+        // Find this session in the saved session list and update it with the new state
+        int hiddenSessions = 0;
+        int updatedSessions = 0;
+        for (Models.DisplaySession s : sessions){
+            if (s.equals(session)) {
+                s.update(session);
+                updatedSessions++;
+                Logger.getInstance().debug("SessionListsFragment", "Updated session visible:" + s.visible);
+            }
+            if (s.visible == false)
+                hiddenSessions++;
+        }
+
+        if (updatedSessions == 0)
+            Logger.getInstance().error("SessionListsFragment", "Unable to update unticked session!");
+
+        Logger.getInstance()
+            .debug("sessionListsFragment", "Updated sessions: " + updatedSessions)
+            .debug("SessionListsFragment", "Sessions hidden: " + hiddenSessions);
+
+        settings.setSessions(sessions, false);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+
+        super.onDetach();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+
+        Logger.getInstance().debug("SessionListsFragment", "Saving state");
+        outState.putBoolean(Args.save.name(), true);
+
+        super.onSaveInstanceState(outState);
+    }
+
+    class ViewPagerAdapter extends FragmentStatePagerAdapter {
+
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final String[] days = new String[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" };
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return days.length;
+        }
+
+        public void addFrag(Fragment fragment) {
+            mFragmentList.add(fragment);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return days[position].toUpperCase();
+        }
+    }
+
+    private class DownloadSessionsTask extends AsyncTask<Void, Integer, Models.SessionResponse> {
+
+        private SessionListsFragment fragment;
+        private Models.Course course;
+        private Models.DisplaySession sessions;
+        private Exception fetchException;
+
+        DownloadSessionsTask(SessionListsFragment fragment, Models.Course course){
+
+            this.fragment = fragment;
+            this.course = course;
+        }
+
+        protected Models.SessionResponse doInBackground(Void... params) {
+
+            // Make API call
+            Models.SessionResponse response = null;
+            try {
+                Service service = new Service();
+                response = service.getSessions(course.sessionUrl);
+            } catch (Exception e) {
+                Logger.getInstance().error("Session download", GeneralUtilities.nestedThrowableToString(e));
+                fetchException = e;
+            }
+            return response;
+        }
+
+        protected void onProgressUpdate(Integer... progress) {
+
+        }
+
+        protected void onPostExecute(Models.SessionResponse response) {
+
+            // Hide progress bar
+            fragment.pbDownload.setVisibility(View.INVISIBLE);
+
+            // Error handling
+            if (fetchException != null){
+                AlertDialog d = new AlertDialog.Builder(fragment.getActivity())
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setTitle(R.string.warning_session_download_error)
+                    .setMessage(fetchException.getMessage())
+                    .create();
+                d.show();
+                return;
+            } else if (response.error) {
+                Logger.getInstance().error("Session download", "Server returning error msg: " + response.errorStr);
+                AlertDialog d = new AlertDialog.Builder(fragment.getActivity())
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setTitle(R.string.warning_session_download_error)
+                    .setMessage(R.string.warning_server_error)
+                    .create();
+                d.show();
+                return;
+            }
+
+            SettingsManager settings  = SettingsManager.getInstance(getActivity());
+
+            // Restore the hidden value of the sessions from the previous saved list
+            List<Models.DisplaySession> sessions = response.sessions;
+            if (settings.hasSessions()) {
+                Service service = new Service();
+                sessions = service.syncSessionLists(sessions, settings.getSessions());
+            }
+
+            // Save to settings
+            settings.setSessions(sessions, true);
+
+            // Set sessions in child fragments
+            fragment.setSessions(course, sessions, -1);
+
+            // Show snackbar
+            fragment.activity.showSessionSnackbar(sessions, settings.getShowHiddenSessions(), true);
+        }
+    }
+}

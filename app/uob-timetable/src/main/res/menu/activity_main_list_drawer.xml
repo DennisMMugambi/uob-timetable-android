@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_sessions"
+            android:icon="@drawable/ic_access_time_black_24dp"
+            android:title="Sessions" />
+        <item
+            android:id="@+id/nav_termdates"
+            android:icon="@drawable/ic_date_range_black_24dp"
+            android:title="Term dates" />
+        <item
+            android:id="@+id/nav_rate"
+            android:icon="@drawable/ic_star_black_24dp"
+            android:title="Rate" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_person_black_24dp"
+            android:title="About" />
+    </group>
+    <item android:title="Options">
+        <menu>
+            <item
+                android:id="@+id/nav_course"
+                android:icon="@drawable/ic_school_black_24dp"
+                android:title="Courses" />
+            <item
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_build_black_24dp"
+                android:title="Settings" />
+        </menu>
+    </item>
+</menu>

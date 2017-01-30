@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">UoB Timetable</string>
+
+    <string name="activity_course_list_label">Courses</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="dialog_dismiss">Okay</string>
+    <string name="dialog_positive">Yes</string>
+    <string name="dialog_negative">No</string>
+    <string name="dialog_close">Close</string>
+
+    <string name="text_disclaimer">This is a third party application which is in no way affiliated with the University of Bedfordshire.</string>
+    <string name="text_tutorial_disclaimer">This data is best used as a guide as it is not obtained directly from the university and may not be 100% accurate.</string>
+    <string name="text_tutorial_hide_sessions">You can enter edit mode to hide sessions by holding a session. You can then toggle the viewing of hidden sessions from the menu.</string>
+    <string name="text_cant_toggle_show_hide">You need to exit edit mode, by holding down on a session, before you can toggle hidden sessions.</string>
+
+    <string name="text_welcome_standard">The next screen will ask you to select a course.</string>
+    <string name="text_welcome_migrate">We\'ve updated!\n\nYou\'ll need to re-select your course.</string>
+
+    <string name="warning_net_connection">Network connection required</string>
+    <string name="warning_session_download_error">Session download error</string>
+    <string name="warning_course_download_error">Course download error</string>
+    <string name="warning_server_error">Server error</string>
+    <string name="warning_cant_toggle_show_hide">Can\'t toggle hidden sessions</string>
+
+    <string name="net_required_first_run">You\'ll need an internet connection to initially download your timetable, after that you can access it offline.</string>
+    <string name="net_required_courses">A network connection is required to fetch course data.</string>
+    <string name="net_required_sessions">A network connection is required to fetch session data.</string>
+    <string name="net_required_term_dates">A network connection is required to fetch the term dates.</string>
+
+</resources>
