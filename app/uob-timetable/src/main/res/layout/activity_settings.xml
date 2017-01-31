@@ -29,11 +29,27 @@
         android:layout_height="wrap_content"
         android:text="Refresh on cellular data" />
 
-    <Button
-        android:id="@+id/btClearSettings"
-        android:layout_height="wrap_content"
+    <android.support.v7.widget.LinearLayoutCompat
         android:layout_width="match_parent"
-        android:text="Clear preferences" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/btClearSettings"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Clear preferences"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/btCopyLog"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Copy log"
+            android:layout_weight="1"/>
+
+    </android.support.v7.widget.LinearLayoutCompat>
 
     <TextView
         android:text="TextView"

@@ -1,5 +1,7 @@
 package com.ak.uobtimetable;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -8,10 +10,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ak.uobtimetable.Utilities.AndroidUtilities;
 import com.ak.uobtimetable.Utilities.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Activity which allows the user to configure settings. Also contains a hidden application log
@@ -25,8 +31,10 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView tvLog;
     private Button btDeveloperMode;
     private Button btClearSettings;
+    private Button btCopyLog;
     private int devBtnClickCount = 0;
     private boolean showingDebug = false;
+    private List<Button> toggleButtons;
 
     private SettingsManager settings;
 
@@ -48,9 +56,18 @@ public class SettingsActivity extends AppCompatActivity {
         tvLog = (TextView)findViewById(R.id.tvLog);
         btDeveloperMode = (Button)findViewById(R.id.btDevMode);
         btClearSettings = (Button)findViewById(R.id.btClearSettings);
+        btCopyLog = (Button)findViewById(R.id.btCopyLog);
 
         // Set initial values
         tvLog.setMovementMethod(new ScrollingMovementMethod());
+
+        toggleButtons = new ArrayList<>();
+        toggleButtons.add(btClearSettings);
+        toggleButtons.add(btCopyLog);
+
+        for (Button hiddenButton : toggleButtons)
+            hiddenButton.setVisibility(View.GONE);
+
         tvLog.setVisibility(View.INVISIBLE);
         btDeveloperMode.setText(" ");
         btClearSettings.setVisibility(View.GONE);
@@ -96,6 +113,19 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+        btCopyLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ClipboardManager clipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("", Logger.getInstance().toString());
+                clipboard.setPrimaryClip(clip);
+
+                Toast toast = Toast.makeText(SettingsActivity.this, "Copied log!", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        });
+
         // Restore state
         if (savedInstanceState != null && savedInstanceState.getBoolean(Args.debug.name(), false) == true)
             showDebugOptions();
@@ -113,7 +143,10 @@ public class SettingsActivity extends AppCompatActivity {
         showingDebug = true;
         updateLog();
         tvLog.setVisibility(View.VISIBLE);
-        btClearSettings.setVisibility(View.VISIBLE);
+
+        for (Button hiddenButton : toggleButtons)
+            hiddenButton.setVisibility(View.VISIBLE);
+
         btDeveloperMode.setVisibility(View.GONE);
     }
 
