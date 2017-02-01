@@ -35,6 +35,8 @@ public class MyApplication extends Application {
         Logger.getInstance()
             .info("Application", "API Level: " + AndroidUtilities.apiLevel())
             .info("Application", "API Level Name: " + AndroidUtilities.apiLevelName())
+            .info("Application", "Git Commit Hash: " + BuildConfig.GIT_COMMIT_HASH)
+            .info("Application", "Git Branch: " + BuildConfig.GIT_BRANCH)
             .info("Application", "Build type: " + (BuildConfig.IS_DEBUG ? "Debug" : "Release"))
             .info("Application", "Build keys: " + (AndroidUtilities.isReleaseSigned(this) ? "Release" : "Debug"))
             .info("Application", "Version code: " + AndroidUtilities.buildVersionCode(this))
