@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity
 
     private SettingsManager settings;
 
+    private boolean showMenu = true;
+
     private final String TITLE_DEFAULT = "UoB timetable";
     private final String TITLE_TERM_DATES = "Term dates";
 
@@ -156,7 +158,7 @@ public class MainActivity extends AppCompatActivity
         // Commit fragment changes
         setTitle(title);
         navigationView.getMenu().getItem(navDrawerSelected).setChecked(true);
-        meMain.setGroupVisible(R.id.grMainGroup, menuVisible);
+        setMenuVisible(menuVisible);
 
         fragmentManager = getSupportFragmentManager();
 
@@ -204,8 +206,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.activity_main_menu, menu);
+
+        // Set the visible state for the menu.
+        meMain.setGroupVisible(R.id.grMainGroup, showMenu);
+
         return true;
     }
 
@@ -248,11 +255,16 @@ public class MainActivity extends AppCompatActivity
 
         Logger.getInstance().debug("MainActivity", "NavigationItemSelected: " + item.getTitle());
 
-        boolean set = true;
-        boolean showMenu = true;
-        String title = null;
+        // Whether or not to set the selected item as selected
+        boolean changedSelectedItem = true;
 
-        boolean exit = false;
+        // Whether the selection was cancelled (eg not in allowable state)
+        boolean cancelled = false;
+
+        // Whether to show the menu in the toolbar. 3 states (no change, show, hide).
+        Boolean showMenu = null;
+
+        String title = null;
 
         // Set sessions fragment
         if (id == R.id.nav_sessions) {
@@ -260,6 +272,7 @@ public class MainActivity extends AppCompatActivity
             currentFragment = frSessions;
             fragmentManager.beginTransaction().hide(frTermDates).show(frSessions).commit();
             AndroidUtilities.trySetElevation(abAppBar, 0);
+            showMenu = Boolean.TRUE;
         }
         // Set term dates fragment
         else if (id == R.id.nav_termdates){
@@ -272,11 +285,11 @@ public class MainActivity extends AppCompatActivity
                     .setMessage(R.string.net_required_term_dates)
                     .create();
                 d.show();
-                set = false;
-                exit = true;
+                changedSelectedItem = false;
+                cancelled = true;
             } else {
                 title = TITLE_TERM_DATES;
-                showMenu = false;
+                showMenu = Boolean.FALSE;
                 currentFragment = frTermDates;
                 fragmentManager.beginTransaction().hide(frSessions).show(frTermDates).commit();
                 AndroidUtilities.trySetElevation(abAppBar, TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
@@ -286,7 +299,7 @@ public class MainActivity extends AppCompatActivity
         // Open course activity, don't change nav button
         else if (id == R.id.nav_course) {
 
-            set = false;
+            changedSelectedItem = false;
 
             // Warn about lack of network availability
             if (AndroidUtilities.getNetwork(this) == AndroidUtilities.NetworkType.None){
@@ -296,39 +309,39 @@ public class MainActivity extends AppCompatActivity
                     .setMessage(R.string.net_required_courses)
                     .create();
                 d.show();
-                exit = true;
+                cancelled = true;
             } else {
                 startActivity(new Intent(this, CourseListActivity.class));
             }
         }
         // Open settings activity, don't change nav button
         else if (id == R.id.nav_settings) {
-            set = false;
+            changedSelectedItem = false;
             startActivity(new Intent(this, SettingsActivity.class));
         }
         else if (id == R.id.nav_rate){
             AndroidUtilities.openPlayStorePage(this);
-            set = false;
+            changedSelectedItem = false;
         }
         // Open about dialog, don't change nav button
         else if (id == R.id.nav_about) {
             showAbout();
-            set = false;
+            changedSelectedItem = false;
         }
 
-        if (exit == false) {
+        if (cancelled == false) {
 
             // Set title
             if (title != null)
                 setTitle(title);
 
             // Set menu visibility
-            meMain.setGroupVisible(R.id.grMainGroup, showMenu);
+            setMenuVisible(showMenu);
         }
 
         // Close drawer, change active nav button, if changed
         dlDrawer.closeDrawer(GravityCompat.START);
-        return set;
+        return changedSelectedItem;
     }
 
     @Override
@@ -352,6 +365,18 @@ public class MainActivity extends AppCompatActivity
         }
 
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    private void setMenuVisible(Boolean visible){
+
+        if (visible == null)
+            return;
+
+        // As well as changing visibility, store the visible state. We'll need this later in case
+        // we attempt to set menu visibility before the menu has been created.
+        showMenu = visible.booleanValue();
+
+        meMain.setGroupVisible(R.id.grMainGroup, showMenu);
     }
 
     public void updateNavDrawerLabels(Models.Course course, List<Models.DisplaySession> sessions){
