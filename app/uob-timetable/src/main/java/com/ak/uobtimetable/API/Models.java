@@ -62,6 +62,7 @@ public class Models {
     public class DisplaySession extends Session {
 
         public boolean visible;
+        private final String MODULE_UNAVAILABLE = "Module name unavailable";
 
         public DisplaySession(){
 
@@ -73,6 +74,18 @@ public class Models {
         }
 
         public String getTitle(){
+
+            if (isValid == false)
+                return MODULE_UNAVAILABLE;
+
+            return moduleName;
+        }
+
+        public String getLongTitle(){
+
+            if (isValid == false)
+                return MODULE_UNAVAILABLE + " - " + type;
+
             return moduleName + " (" + moduleCode + ") " + type;
         }
 

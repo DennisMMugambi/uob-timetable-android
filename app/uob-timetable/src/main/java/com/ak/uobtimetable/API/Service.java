@@ -119,7 +119,7 @@ public class Service {
         // Log invalid
         for (Models.DisplaySession session : response.sessions) {
             if (session.isValid == false)
-                Logger.getInstance().warn("Service", "Invalid session: " + session.getTitle());
+                Logger.getInstance().warn("Service", "Invalid session: " + session.getLongTitle());
         }
 
         // Log no sessions

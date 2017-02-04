@@ -1,7 +1,6 @@
 package com.ak.uobtimetable.Fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -74,7 +73,7 @@ public class SessionListFragment extends Fragment {
                 // Display alert
                 SettingsManager settings = SettingsManager.getInstance(getActivity());
                 new AlertDialog.Builder(getActivity())
-                    .setTitle(selectedSession.getTitle())
+                    .setTitle(selectedSession.getLongTitle())
                     .setMessage(selectedSession.getDescription(settings.getLongRoomNames()))
                     .setPositiveButton(android.R.string.ok, null)
                     .create()

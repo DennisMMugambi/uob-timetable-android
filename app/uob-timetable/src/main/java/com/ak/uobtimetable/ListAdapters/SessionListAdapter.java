@@ -75,7 +75,7 @@ public class SessionListAdapter extends BaseAdapter {
 
         // Set text
         tvTime.setText(session.start);
-        tvTitle.setText(session.moduleName);
+        tvTitle.setText(session.getTitle());
         tvSubtitle.setText(session.getSubtitle());
 
         // Set text colour
