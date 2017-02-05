@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="termdates"
+        android:enabled="true"
+        android:icon="@mipmap/ic_date_range_round"
+        android:shortcutShortLabel="@string/shortcut_termdates">
+        <intent
+            android:action="shortcutTermDates"
+            android:targetPackage="com.ak.uobtimetable"
+            android:targetClass="com.ak.uobtimetable.MainActivity" />
+    </shortcut>
+</shortcuts>
+
+

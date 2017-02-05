@@ -32,4 +32,6 @@
     <string name="net_required_sessions">A network connection is required to fetch session data.</string>
     <string name="net_required_term_dates">A network connection is required to fetch the term dates.</string>
 
+    <string name="shortcut_termdates">Term dates</string>
+
 </resources>

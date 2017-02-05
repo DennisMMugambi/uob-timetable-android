@@ -127,6 +127,11 @@ public class MainActivity extends AppCompatActivity
 
         Logger.getInstance().debug("MainActivity", "sessionListFragmentArg: " + sessionListsLoadArg.name());
 
+        // Check whether we should show term dates instead of sessions, based on saved state or intent
+        boolean showTermDates =
+            (savedInstanceState != null && savedInstanceState.getString(Args.fragment.name(), "").equals("TermDatesFragment")) ||
+            (getIntent().getAction() != null && getIntent().getAction().equals("shortcutTermDates"));
+
         // Init sessions fragment
         int initialIndex = -1;
         if (savedInstanceState != null && savedInstanceState.containsKey(Args.currentIndex.name()))
@@ -134,10 +139,11 @@ public class MainActivity extends AppCompatActivity
         frSessions = SessionListsFragment.newInstance(sessionListsLoadArg, initialIndex);
 
         // Init term dates fragment
-        boolean loadTermDates = AndroidUtilities.getNetwork(this) == AndroidUtilities.NetworkType.Infrastructure;
+        boolean loadTermDates = showTermDates || AndroidUtilities.getNetwork(this) == AndroidUtilities.NetworkType.Infrastructure;
         frTermDates = TermDatesFragment.newInstance(loadTermDates);
 
         // Set initial fragment
+
         // If sessions
         String title = TITLE_DEFAULT;
         int navDrawerSelected = 0;
@@ -145,7 +151,7 @@ public class MainActivity extends AppCompatActivity
         currentFragment = frSessions;
         boolean menuVisible = true;
         // If term dates
-        if (savedInstanceState != null && savedInstanceState.getString(Args.fragment.name(), "").equals("TermDatesFragment")){
+        if (showTermDates){
             title = TITLE_TERM_DATES;
             navDrawerSelected = 1;
             hideFragment = frSessions;
