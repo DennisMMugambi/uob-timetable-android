@@ -2,7 +2,7 @@ package com.ak.uobtimetable.ListAdapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,10 +79,11 @@ public class SessionListAdapter extends BaseAdapter {
         tvSubtitle.setText(session.getSubtitle());
 
         // Set text colour
+        Context context = fragment.getContext();
         HashMap<Models.TimeState, Integer> colourMap = new HashMap<>();
-        colourMap.put(Models.TimeState.Elapsed, Color.rgb(128, 128, 128));
-        colourMap.put(Models.TimeState.Ongoing, Color.rgb(217, 0, 51));
-        colourMap.put(Models.TimeState.Future, Color.rgb(0, 0, 0));
+        colourMap.put(Models.TimeState.Elapsed, ContextCompat.getColor(context, R.color.colorTextDisabled));
+        colourMap.put(Models.TimeState.Ongoing, ContextCompat.getColor(context, R.color.colorPrimary));
+        colourMap.put(Models.TimeState.Future, ContextCompat.getColor(context, R.color.colorTextBlack));
 
         for (TextView tv : new TextView[] { tvTime, tvTitle, tvSubtitle })
             tv.setTextColor(colourMap.get(session.getState()));

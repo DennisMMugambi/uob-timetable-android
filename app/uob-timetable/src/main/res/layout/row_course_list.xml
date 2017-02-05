@@ -13,7 +13,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dip"
         android:text="some course name"
-        android:textSize="21dip"/>
+        android:textSize="21dip"
+        android:textColor="@color/colorTextBlack"/>
 
     <TextView
         android:id="@+id/tvSubtitle"
@@ -24,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dip"
         android:text="location - start month - blah"
-        android:textSize="13dip"/>
+        android:textSize="13dip"
+        android:textColor="@color/colorTextBlack"/>
 
 </LinearLayout>
