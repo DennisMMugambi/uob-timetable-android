@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -39,9 +40,11 @@ public class SessionListsFragment extends Fragment {
 
     private List<Models.DisplaySession> sessions;
     private Models.Course course;
+    private List<SessionListFragment> sessionListFragments;
     private boolean editMode;
     private SettingsManager settings;
     private MainActivity activity;
+    private Handler listsUpdateHandler;
 
     public enum InitialLoadMode {
         loadSessionsWithSnackbar,
@@ -156,6 +159,7 @@ public class SessionListsFragment extends Fragment {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
 
         // Add a fragment for each day
+        sessionListFragments = new ArrayList<>();
         for (int day = 0; day <= 4; day++){
 
             // Get sessions for day
@@ -166,7 +170,9 @@ public class SessionListsFragment extends Fragment {
             }
 
             // Create fragment
-            adapter.addFrag(SessionListFragment.newInstance(thisDaysSessions, this));
+            SessionListFragment thisDayFragment = SessionListFragment.newInstance(thisDaysSessions, this);
+            adapter.addFrag(thisDayFragment);
+            sessionListFragments.add(thisDayFragment);
 
             Logger.getInstance().debug("SessionListsFragment", thisDaysSessions.size() + " sessions for day " + day);
         }
@@ -197,6 +203,9 @@ public class SessionListsFragment extends Fragment {
 
         // Update the course text labels in navigation drawer
         activity.updateNavDrawerLabels(course, sessions);
+
+        // Start the timer used to redraw the session lists every miute
+        startRedrawUpdateTimer();
 
         // Show tutorial message boxes
         if (settings.getCompletedTutorial() == false){
@@ -296,6 +305,52 @@ public class SessionListsFragment extends Fragment {
             .debug("SessionListsFragment", "Sessions hidden: " + hiddenSessions);
 
         settings.setSessions(sessions, false);
+    }
+
+    /**
+     * Start the timer used to trigger a redraw of the session list, in case a session's timestate
+     * has changed.
+     */
+    public void startRedrawUpdateTimer(){
+
+        if (listsUpdateHandler != null)
+            return;
+
+        // Set a timer for re-rendering the session list every minute, in case a session timestate
+        // has changed, as the text colour will change. We want to fire every minute, on the minute,
+        // so first work out how many seconds until the next minute.
+        int currentSeconds = Calendar.getInstance().get(Calendar.SECOND);
+        int fireInSeconds = 60 - currentSeconds + 5;
+
+        listsUpdateHandler = new Handler();
+        listsUpdateHandler.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+
+                Logger.getInstance().debug("SessionListsFragment", "Fired refresh session list handler");
+
+                // Update all 5 lists
+                for (SessionListFragment sessionListFragment : sessionListFragments)
+                    sessionListFragment.redrawSessionList();
+
+                // Fire again in one minute
+                listsUpdateHandler.postDelayed(this, 60 * 1000);
+            }
+        }, fireInSeconds * 1000 );
+    }
+
+    /**
+     * Stop the timer used to trigger a redraw of the session list, in case a session's timestate
+     * has changed.
+     */
+    public void stopRedrawUpdateTimer(){
+
+        if (listsUpdateHandler == null)
+            return;
+
+        listsUpdateHandler.removeCallbacksAndMessages(null);
+        listsUpdateHandler = null;
     }
 
     @Override

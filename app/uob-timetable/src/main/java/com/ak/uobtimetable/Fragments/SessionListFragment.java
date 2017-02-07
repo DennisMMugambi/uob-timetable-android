@@ -109,6 +109,15 @@ public class SessionListFragment extends Fragment {
         parentFragment.updateSession(session);
     }
 
+    public void redrawSessionList(){
+
+        if (lvSessions == null)
+            return;
+
+        SessionListAdapter adapter = (SessionListAdapter)lvSessions.getAdapter();
+        adapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onAttach(Context context) {
 

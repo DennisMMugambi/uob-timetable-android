@@ -373,6 +373,30 @@ public class MainActivity extends AppCompatActivity
         super.onSaveInstanceState(savedInstanceState);
     }
 
+    @Override
+    public void onResume() {
+
+        super.onResume();
+
+        Logger.getInstance().debug("MainActivity", "OnResume");
+
+        // Start the session list redraw timer, because we are back to the foreground
+        if (frSessions != null)
+            frSessions.startRedrawUpdateTimer();
+    }
+
+    @Override
+    public void onPause() {
+
+        super.onPause();
+
+        Logger.getInstance().debug("MainActivity", "OnPause");
+
+        // Stop session list redraw timer, because the app is in the background
+        if (frSessions != null)
+            frSessions.stopRedrawUpdateTimer();
+    }
+
     private void setMenuVisible(Boolean visible){
 
         if (visible == null)
