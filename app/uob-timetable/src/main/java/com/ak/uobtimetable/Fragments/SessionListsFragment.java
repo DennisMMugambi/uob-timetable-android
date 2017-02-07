@@ -97,6 +97,8 @@ public class SessionListsFragment extends Fragment {
         course = settings.getCourse();
         sessions = settings.getSessions();
 
+        sessionListFragments = new ArrayList<>();
+
         int initialIndex = getArguments().getInt(Args.initialIndex.name(), -1);
         InitialLoadMode mo = InitialLoadMode.valueOf(getArguments().getString(Args.load.name()));
         Logger.getInstance()
@@ -336,6 +338,7 @@ public class SessionListsFragment extends Fragment {
 
                 // Fire again in one minute
                 listsUpdateHandler.postDelayed(this, 60 * 1000);
+
             }
         }, fireInSeconds * 1000 );
     }
