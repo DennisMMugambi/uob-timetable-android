@@ -3,6 +3,8 @@
 This application displays the 5-day timetable for any University of Bedfordshire 
 course.
 
+[![Google Play badge](screenshots/assets/google-play-badge.png "Google Play badge")](https://play.google.com/store/apps/details?id=com.ak.uobtimetable)
+
 ![Hero image](screenshots/art/hero.png "Hero image")
 
 ## Features
