@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="2">
+        android:weightSum="3">
 
         <Button
             android:id="@+id/btClearSettings"
@@ -47,6 +47,13 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="Copy log"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/btRestart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Restart"
             android:layout_weight="1"/>
 
     </android.support.v7.widget.LinearLayoutCompat>

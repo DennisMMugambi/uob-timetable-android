@@ -32,6 +32,8 @@ public class SettingsActivity extends AppCompatActivity {
     private Button btDeveloperMode;
     private Button btClearSettings;
     private Button btCopyLog;
+    private Button btRestart;
+
     private int devBtnClickCount = 0;
     private boolean showingDebug = false;
     private List<Button> toggleButtons;
@@ -57,6 +59,7 @@ public class SettingsActivity extends AppCompatActivity {
         btDeveloperMode = (Button)findViewById(R.id.btDevMode);
         btClearSettings = (Button)findViewById(R.id.btClearSettings);
         btCopyLog = (Button)findViewById(R.id.btCopyLog);
+        btRestart = (Button)findViewById(R.id.btRestart);
 
         // Set initial values
         tvLog.setMovementMethod(new ScrollingMovementMethod());
@@ -64,6 +67,7 @@ public class SettingsActivity extends AppCompatActivity {
         toggleButtons = new ArrayList<>();
         toggleButtons.add(btClearSettings);
         toggleButtons.add(btCopyLog);
+        toggleButtons.add(btRestart);
 
         for (Button hiddenButton : toggleButtons)
             hiddenButton.setVisibility(View.GONE);
@@ -97,10 +101,10 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-            devBtnClickCount++;
+                devBtnClickCount++;
 
-            if (devBtnClickCount == 7)
-                showDebugOptions();
+                if (devBtnClickCount == 7)
+                    showDebugOptions();
             }
         });
 
@@ -108,8 +112,8 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-            SettingsManager.getInstance(SettingsActivity.this).clear();
-            updateLog();
+                SettingsManager.getInstance(SettingsActivity.this).clear();
+                updateLog();
             }
         });
 
@@ -123,6 +127,14 @@ public class SettingsActivity extends AppCompatActivity {
 
                 Toast toast = Toast.makeText(SettingsActivity.this, "Copied log!", Toast.LENGTH_SHORT);
                 toast.show();
+            }
+        });
+
+        btRestart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                android.os.Process.killProcess(android.os.Process.myPid());
             }
         });
 
