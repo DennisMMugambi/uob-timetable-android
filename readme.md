@@ -21,7 +21,10 @@ Debug APK available [here](app/uob-timetable/build/outputs/apk/uob-timetable-deb
 
 ## Changelog
 
-- 2.0
+- 2.1 (12)
+	- Fixed crash when session list fails to download
+	- Added progress bar for term dates
+- 2.0 (11)
 	- Complete rewrite with Material Design
 	- Landscape support
 - 1.0

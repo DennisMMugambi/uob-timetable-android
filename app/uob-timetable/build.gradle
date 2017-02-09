@@ -16,8 +16,8 @@ android {
         applicationId "com.ak.uobtimetable"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 11
-        versionName "2.0"
+        versionCode 12
+        versionName "2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
