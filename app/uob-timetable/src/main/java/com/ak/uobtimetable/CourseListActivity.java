@@ -199,7 +199,7 @@ public class CourseListActivity extends AppCompatActivity {
             // Make API call
             Models.CourseResponse response = null;
             try {
-                Service service = new Service();
+                Service service = new Service(getApplicationContext());
                 response = service.getCourses();
             } catch (Exception e) {
                 fetchException = e;

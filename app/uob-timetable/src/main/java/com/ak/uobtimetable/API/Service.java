@@ -1,5 +1,8 @@
 package com.ak.uobtimetable.API;
 
+import android.content.Context;
+
+import com.ak.uobtimetable.Utilities.AndroidUtilities;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,11 +24,13 @@ public class Service {
 
     private OkHttpClient okHttpClient;
     private Gson gson;
+    private Context context;
 
     private final String API_ENDPOINT = "https://adriankeenan.co.uk/uobtimetable/api/index.php/courses";
 
-    public Service(){
+    public Service(Context appContext){
 
+        context = appContext;
         okHttpClient = new OkHttpClient();
         gson = makeGson();
     }
@@ -37,12 +42,16 @@ public class Service {
             .create();
     }
 
-    private static Request makeRequest(String url){
+    private Request makeRequest(String url){
 
         // Build a new request with an explicitly set User-Agent, otherwise the UA
         // gets set to "okhttp/x.y.z"
         String userAgent = System.getProperty("http.agent");
-        return new Request.Builder().url(url).addHeader("User-Agent", userAgent).build();
+        int buildVersion = AndroidUtilities.buildVersionCode(context);
+        return new Request.Builder().url(url)
+            .addHeader("User-Agent", userAgent)
+            .addHeader("App-Version", Integer.valueOf(buildVersion).toString())
+            .build();
     }
 
     private String getString(String url) throws IOException {

@@ -424,7 +424,7 @@ public class SessionListsFragment extends Fragment {
             // Make API call
             Models.SessionResponse response = null;
             try {
-                Service service = new Service();
+                Service service = new Service(getContext());
                 response = service.getSessions(course.sessionUrl);
             } catch (Exception e) {
                 Logger.getInstance().error("Session download", GeneralUtilities.nestedThrowableToString(e));
@@ -462,12 +462,12 @@ public class SessionListsFragment extends Fragment {
                 return;
             }
 
-            SettingsManager settings  = SettingsManager.getInstance(getActivity());
+            SettingsManager settings  = SettingsManager.getInstance(getContext());
 
             // Restore the hidden value of the sessions from the previous saved list
             List<Models.DisplaySession> sessions = response.sessions;
             if (settings.hasSessions()) {
-                Service service = new Service();
+                Service service = new Service(getContext());
                 sessions = service.syncSessionLists(sessions, settings.getSessions());
             }
 
