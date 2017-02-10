@@ -127,11 +127,15 @@ public class MainActivity extends AppCompatActivity
 
         Logger.getInstance().debug("MainActivity", "sessionListFragmentArg: " + sessionListsLoadArg.name());
 
-        // Check whether we should show term dates instead of sessions, based on saved state or intent
+        // Check whether we should show term dates due to saved state
         boolean showTermDatesConfigChange = savedInstanceState != null &&
-                savedInstanceState.getString(Args.fragment.name(), "").equals("TermDatesFragment");
-        boolean showTermDatesShortcut = getIntent().getAction() != null
-                && getIntent().getAction().equals("shortcutTermDates");
+            savedInstanceState.getString(Args.fragment.name(), "").equals("TermDatesFragment");
+
+        // Check whether we should show term dates due to app shortcut. We need to make sure
+        // this only happens on launch, not every config change, so check for null saved state.
+        boolean showTermDatesShortcut = savedInstanceState == null &&
+            getIntent().getAction() != null
+            && getIntent().getAction().equals("shortcutTermDates");
 
         // Check for internet connection if we're showing term dates from shortcut, otherwise
         // the webview error message will remain until configuration change
@@ -148,6 +152,10 @@ public class MainActivity extends AppCompatActivity
                 .create();
             d.show();
         }
+
+        Logger.getInstance()
+            .debug("MainActivity", "showTermDatesConfigChange: " + showTermDatesConfigChange)
+            .debug("MainActivity", "showTermDatesShortcut: " + showTermDatesShortcut);
 
         boolean showTermDates = showTermDatesConfigChange || showTermDatesShortcut;
 
