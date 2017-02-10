@@ -128,9 +128,28 @@ public class MainActivity extends AppCompatActivity
         Logger.getInstance().debug("MainActivity", "sessionListFragmentArg: " + sessionListsLoadArg.name());
 
         // Check whether we should show term dates instead of sessions, based on saved state or intent
-        boolean showTermDates =
-            (savedInstanceState != null && savedInstanceState.getString(Args.fragment.name(), "").equals("TermDatesFragment")) ||
-            (getIntent().getAction() != null && getIntent().getAction().equals("shortcutTermDates"));
+        boolean showTermDatesConfigChange = savedInstanceState != null &&
+                savedInstanceState.getString(Args.fragment.name(), "").equals("TermDatesFragment");
+        boolean showTermDatesShortcut = getIntent().getAction() != null
+                && getIntent().getAction().equals("shortcutTermDates");
+
+        // Check for internet connection if we're showing term dates from shortcut, otherwise
+        // the webview error message will remain until configuration change
+        if (showTermDatesShortcut && AndroidUtilities.hasNetwork(this) == false) {
+
+            // Stay on sessions instead
+            showTermDatesShortcut = false;
+
+            // Show warning
+            AlertDialog d = new AlertDialog.Builder(this)
+                .setPositiveButton(R.string.dialog_dismiss, null)
+                .setTitle(R.string.warning_net_connection)
+                .setMessage(R.string.net_required_term_dates)
+                .create();
+            d.show();
+        }
+
+        boolean showTermDates = showTermDatesConfigChange || showTermDatesShortcut;
 
         // Init sessions fragment
         int initialIndex = -1;
@@ -232,7 +251,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_refresh) {
 
             // Warn about lack of network availability
-            if (AndroidUtilities.getNetwork(this) == AndroidUtilities.NetworkType.None){
+            if (AndroidUtilities.hasNetwork(this) == false){
                 AlertDialog d = new AlertDialog.Builder(this)
                     .setPositiveButton(R.string.dialog_dismiss, null)
                     .setTitle(R.string.warning_net_connection)
@@ -284,7 +303,7 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_termdates){
 
             // Warn about lack of network availability
-            if (AndroidUtilities.getNetwork(this) == AndroidUtilities.NetworkType.None){
+            if (AndroidUtilities.hasNetwork(this) == false){
                 AlertDialog d = new AlertDialog.Builder(this)
                     .setPositiveButton(R.string.dialog_dismiss, null)
                     .setTitle(R.string.warning_net_connection)
@@ -308,7 +327,7 @@ public class MainActivity extends AppCompatActivity
             changedSelectedItem = false;
 
             // Warn about lack of network availability
-            if (AndroidUtilities.getNetwork(this) == AndroidUtilities.NetworkType.None){
+            if (AndroidUtilities.hasNetwork(this) == false){
                 AlertDialog d = new AlertDialog.Builder(this)
                     .setPositiveButton(R.string.dialog_dismiss, null)
                     .setTitle(R.string.warning_net_connection)
