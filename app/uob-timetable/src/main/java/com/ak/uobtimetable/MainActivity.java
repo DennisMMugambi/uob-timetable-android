@@ -508,11 +508,10 @@ public class MainActivity extends AppCompatActivity
         StringBuilder sb = new StringBuilder();
 
         // Add session count
-        if (showingHidden == false && sessionCount != visibleSessions)
-            sb.append("Showing " + visibleSessions+ " of " + sessionCount);
+        if (showingHidden == false)
+            sb.append("Showing " + visibleSessions + " of " + sessionCount + " sessions");
         else
-            sb.append("Showing all " + sessionCount);
-        sb.append(" sessions");
+            sb.append("Showing all " + sessionCount + " sessions");
 
         // Add datetime when the sessions were cached, if applicable
         if (showSavedTime)
