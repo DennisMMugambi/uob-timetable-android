@@ -21,6 +21,9 @@ Debug APK available [here](app/uob-timetable/build/outputs/apk/uob-timetable-deb
 
 ## Changelog
 
+- 2.2 (13)
+	- Improved settings UI
+	- Fixed Term Date app shortcut bugs
 - 2.1 (12)
 	- Fixed crash when session list fails to download
 	- Added progress bar for term dates
