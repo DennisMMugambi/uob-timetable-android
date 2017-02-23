@@ -191,14 +191,7 @@ public class SessionListsFragment extends Fragment {
         mTabLayoutHelper.setAutoAdjustTabModeEnabled(true);
 
         // Switch to the current day or predefined index
-        int index = 0;
-        if (initialIndex > -1){
-            index = initialIndex;
-        } else {
-            int currentDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2;
-            if (currentDayOfWeek >= 0 && currentDayOfWeek <= 4)
-                index = currentDayOfWeek;
-        }
+        int index = initialIndex > -1 ? initialIndex : getCurrentTimetableDay();
         viewPager.setCurrentItem(index, true);
 
         Logger.getInstance().debug("SessionListsFragment", "Refreshed ViewPager");
@@ -238,6 +231,44 @@ public class SessionListsFragment extends Fragment {
                 .create();
             d.show();
         }
+    }
+
+    /**
+     * Gets the initial day to select when displaying the timetable. This can either be the current
+     * day the next day if all of todays sessions have finished, or monday if it's the weekend.
+     * @return day - 0 is monday
+     */
+    private int getCurrentTimetableDay(){
+
+        // Get today
+        int currentDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2;
+
+        // Return monday if weekend
+        if (currentDayOfWeek < 0 || currentDayOfWeek > 4)
+            return 0;
+
+        // If there are sessions today and all elapsed, go to tomorrow
+        boolean showingHiddenSessions = settings.getShowHiddenSessions();
+        boolean sessionsToday = false;
+        boolean sessionsTodayAllElapsed = true;
+        for (Models.DisplaySession session : sessions) {
+            // Filter today and visible
+            if (session.day == currentDayOfWeek && (session.visible || showingHiddenSessions)) {
+                sessionsToday = true;
+                if (session.getState() != Models.TimeState.Elapsed)
+                    sessionsTodayAllElapsed = false;
+            }
+        }
+        if (sessionsToday && sessionsTodayAllElapsed){
+            // Increment day of week, wrap around from friday to monday
+            int selectedDay = currentDayOfWeek + 1;
+            if (selectedDay > 4)
+                selectedDay = 0;
+            return selectedDay;
+        }
+
+        // Return current day
+        return currentDayOfWeek;
     }
 
     /**
