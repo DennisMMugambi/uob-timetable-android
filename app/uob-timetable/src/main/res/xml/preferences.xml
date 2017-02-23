@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/preference_category_display">
+
+        <CheckBoxPreference
+            android:key="longRoomNames"
+            android:title="@string/setting_long_room_names"
+            android:summaryOn="@string/pref_long_room_names_on"
+            android:summaryOff="@string/pref_long_room_names_off"
+            android:persistent="false"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/preference_category_sync">
+
+        <CheckBoxPreference
+            android:key="refreshWiFi"
+            android:title="@string/setting_refresh_wifi"
+            android:summaryOn="@string/pref_refresh_wifi_on"
+            android:summaryOff="@string/pref_refresh_wifi_off"
+            android:persistent="false"/>
+
+        <CheckBoxPreference
+            android:key="refreshCellular"
+            android:title="@string/setting_refresh_cellular"
+            android:summaryOn="@string/pref_refresh_cellular_on"
+            android:summaryOff="@string/pref_refresh_cellular_off"
+            android:persistent="false"/>
+
+        <!-- The last preference in this category does not animate for some reason. Adding a
+             dummy last item works around this issue. It does however leave a separator at the
+             bottom of the list. http://stackoverflow.com/a/37780244 -->
+        <com.ak.uobtimetable.DummyPreference />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

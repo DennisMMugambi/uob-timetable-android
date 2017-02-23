@@ -12,6 +12,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ak.uobtimetable.Fragments.PreferencesFragment;
 import com.ak.uobtimetable.Utilities.AndroidUtilities;
 import com.ak.uobtimetable.Utilities.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
@@ -25,9 +26,6 @@ import java.util.List;
  */
 public class SettingsActivity extends AppCompatActivity {
 
-    private CheckBox cbLongRoomNames;
-    private CheckBox cbRefreshWiFi;
-    private CheckBox cbRefreshCellular;
     private TextView tvLog;
     private Button btDeveloperMode;
     private Button btClearSettings;
@@ -38,23 +36,17 @@ public class SettingsActivity extends AppCompatActivity {
     private boolean showingDebug = false;
     private List<Button> toggleButtons;
 
-    private SettingsManager settings;
-
     public enum Args {
         debug
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        settings = SettingsManager.getInstance(this);
-
         // Get UI references
-        cbLongRoomNames = (CheckBox)findViewById(R.id.cbLongRoomNames);
-        cbRefreshWiFi = (CheckBox)findViewById(R.id.cbRefreshWiFi);
-        cbRefreshCellular = (CheckBox)findViewById(R.id.cbRefreshCellular);
         tvLog = (TextView)findViewById(R.id.tvLog);
         btDeveloperMode = (Button)findViewById(R.id.btDevMode);
         btClearSettings = (Button)findViewById(R.id.btClearSettings);
@@ -78,23 +70,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         if (AndroidUtilities.isTabletLayout(this) == false)
             tvLog.setTextSize(12);
-
-        cbLongRoomNames.setChecked(settings.getLongRoomNames());
-        cbRefreshWiFi.setChecked(settings.getRefreshWiFi());
-        cbRefreshCellular.setChecked(settings.getRefreshCellular());
-
-        // Set checkbox event handler
-        CompoundButton.OnCheckedChangeListener changedListener = new CompoundButton.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                saveSettings();
-            }
-        };
-
-        cbLongRoomNames.setOnCheckedChangeListener(changedListener);
-        cbRefreshWiFi.setOnCheckedChangeListener(changedListener);
-        cbRefreshCellular.setOnCheckedChangeListener(changedListener);
 
         // Dev mode button
         btDeveloperMode.setOnClickListener(new View.OnClickListener() {
@@ -141,13 +116,6 @@ public class SettingsActivity extends AppCompatActivity {
         // Restore state
         if (savedInstanceState != null && savedInstanceState.getBoolean(Args.debug.name(), false) == true)
             showDebugOptions();
-    }
-
-    private void saveSettings(){
-
-        settings.setLongRoomNames(cbLongRoomNames.isChecked());
-        settings.setRefreshWiFi(cbRefreshWiFi.isChecked());
-        settings.setRefreshCellular(cbRefreshCellular.isChecked());
     }
 
     private void showDebugOptions(){

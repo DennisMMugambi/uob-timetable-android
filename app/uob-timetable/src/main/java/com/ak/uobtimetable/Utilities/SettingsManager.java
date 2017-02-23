@@ -91,6 +91,11 @@ public class SettingsManager {
         return removed;
     }
 
+    public String[] getAllKeys(){
+
+        return sharedPrefs.getAll().keySet().toArray(new String[0]);
+    }
+
     private String getString(Settings key, String defaultValue) {
 
         Logger.getInstance().info("SettingsManager", "Getting string: " + key);
@@ -136,7 +141,7 @@ public class SettingsManager {
         String dateString = sharedPrefs.getString(keyToString(key), null);
 
         if (dateString == null)
-            return  defValue;
+            return defValue;
 
         try {
             return DATE_FORMAT.parse(dateString);
