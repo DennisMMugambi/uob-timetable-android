@@ -4,6 +4,16 @@
     android:layout_height="match_parent"
     tools:context="com.ak.uobtimetable.Fragments.SessionListFragment">
 
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/tvListEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_no_sessions"
+        android:layout_margin="5dp"
+        android:textColor="@color/colorTextDisabled"
+        android:textSize="14dp"
+        android:gravity="center" />
+
     <ListView
         android:id="@+id/lvSessions"
         android:layout_width="match_parent"

@@ -17,6 +17,7 @@
     <string name="text_tutorial_disclaimer">This data is best used as a guide as it is not obtained directly from the university and may not be 100% accurate.</string>
     <string name="text_tutorial_hide_sessions">You can enter edit mode to hide sessions by holding a session. You can then toggle the viewing of hidden sessions from the menu.</string>
     <string name="text_cant_toggle_show_hide">You need to exit edit mode, by holding down on a session, before you can toggle hidden sessions.</string>
+    <string name="text_no_sessions">No sessions to display.</string>
 
     <string name="text_welcome_standard">The next screen will ask you to select a course.</string>
     <string name="text_welcome_migrate">We\'ve updated!\n\nYou\'ll need to re-select your course.</string>

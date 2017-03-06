@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -18,12 +19,15 @@ import com.ak.uobtimetable.R;
 import com.ak.uobtimetable.Utilities.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
 
+import org.w3c.dom.Text;
+
 /**
  * Fragment containing a list of sessions for a given day.
  */
 public class SessionListFragment extends Fragment {
 
     private ListView lvSessions;
+    private TextView tvListEmpty;
 
     public SessionListsFragment parentFragment;
     public List<Models.DisplaySession> todaysSessions;
@@ -56,6 +60,10 @@ public class SessionListFragment extends Fragment {
 
         // Get UI references
         lvSessions = (ListView)view.findViewById(R.id.lvSessions);
+        tvListEmpty = (TextView)view.findViewById(R.id.tvListEmpty);
+
+        // Set empty view
+        lvSessions.setEmptyView(tvListEmpty);
 
         // Populate session list
         SessionListAdapter sessionAdapter = new SessionListAdapter(getActivity(), todaysSessions, this);
