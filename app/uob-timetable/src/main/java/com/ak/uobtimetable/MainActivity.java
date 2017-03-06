@@ -145,12 +145,7 @@ public class MainActivity extends AppCompatActivity
             showTermDatesShortcut = false;
 
             // Show warning
-            AlertDialog d = new AlertDialog.Builder(this)
-                .setPositiveButton(R.string.dialog_dismiss, null)
-                .setTitle(R.string.warning_net_connection)
-                .setMessage(R.string.net_required_term_dates)
-                .create();
-            d.show();
+            showNoInternetConnectionSnackbar();
         }
 
         Logger.getInstance()
@@ -260,12 +255,7 @@ public class MainActivity extends AppCompatActivity
 
             // Warn about lack of network availability
             if (AndroidUtilities.hasNetwork(this) == false){
-                AlertDialog d = new AlertDialog.Builder(this)
-                    .setPositiveButton(R.string.dialog_dismiss, null)
-                    .setTitle(R.string.warning_net_connection)
-                    .setMessage(R.string.net_required_sessions)
-                    .create();
-                d.show();
+                showNoInternetConnectionSnackbar();
             } else {
                 frSessions.updateSessions(settings.getCourse());
             }
@@ -291,9 +281,6 @@ public class MainActivity extends AppCompatActivity
         // Whether or not to set the selected item as selected
         boolean changedSelectedItem = true;
 
-        // Whether the selection was cancelled (eg not in allowable state)
-        boolean cancelled = false;
-
         // Whether to show the menu in the toolbar. 3 states (no change, show, hide).
         Boolean showMenu = null;
 
@@ -312,14 +299,8 @@ public class MainActivity extends AppCompatActivity
 
             // Warn about lack of network availability
             if (AndroidUtilities.hasNetwork(this) == false){
-                AlertDialog d = new AlertDialog.Builder(this)
-                    .setPositiveButton(R.string.dialog_dismiss, null)
-                    .setTitle(R.string.warning_net_connection)
-                    .setMessage(R.string.net_required_term_dates)
-                    .create();
-                d.show();
+                showNoInternetConnectionSnackbar();
                 changedSelectedItem = false;
-                cancelled = true;
             } else {
                 title = TITLE_TERM_DATES;
                 showMenu = Boolean.FALSE;
@@ -336,13 +317,7 @@ public class MainActivity extends AppCompatActivity
 
             // Warn about lack of network availability
             if (AndroidUtilities.hasNetwork(this) == false){
-                AlertDialog d = new AlertDialog.Builder(this)
-                    .setPositiveButton(R.string.dialog_dismiss, null)
-                    .setTitle(R.string.warning_net_connection)
-                    .setMessage(R.string.net_required_courses)
-                    .create();
-                d.show();
-                cancelled = true;
+                showNoInternetConnectionSnackbar();
             } else {
                 startActivity(new Intent(this, CourseListActivity.class));
             }
@@ -353,16 +328,23 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, SettingsActivity.class));
         }
         else if (id == R.id.nav_rate){
-            AndroidUtilities.openPlayStorePage(this);
+
             changedSelectedItem = false;
+
+            // Warn about lack of network availability
+            if (AndroidUtilities.hasNetwork(this) == false)
+                showNoInternetConnectionSnackbar();
+            else
+                AndroidUtilities.openPlayStorePage(this);
         }
         // Open about dialog, don't change nav button
         else if (id == R.id.nav_about) {
-            showAbout();
+
             changedSelectedItem = false;
+            showAbout();
         }
 
-        if (cancelled == false) {
+        if (changedSelectedItem) {
 
             // Set title
             if (title != null)
@@ -519,6 +501,12 @@ public class MainActivity extends AppCompatActivity
 
         // Show snackbar
         Snackbar.make(clCoordinatorLayout, sb.toString(), Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showNoInternetConnectionSnackbar(){
+
+        CharSequence message = getText(R.string.net_required);
+        Snackbar.make(clCoordinatorLayout, message, Snackbar.LENGTH_LONG).show();
     }
 
     private boolean shouldUpdate(){

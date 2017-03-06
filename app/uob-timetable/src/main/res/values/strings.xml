@@ -29,8 +29,7 @@
 
     <string name="net_required_first_run">You\'ll need an internet connection to initially download your timetable, after that you can access it offline.</string>
     <string name="net_required_courses">A network connection is required to fetch course data.</string>
-    <string name="net_required_sessions">A network connection is required to fetch session data.</string>
-    <string name="net_required_term_dates">A network connection is required to fetch the term dates.</string>
+    <string name="net_required">No internet connection</string>
 
     <string name="shortcut_termdates">Term dates</string>
 
