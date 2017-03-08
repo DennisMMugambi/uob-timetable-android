@@ -83,7 +83,7 @@ public class Service {
 
         } catch (Exception e){
 
-            throw new IOException("Failed to download from server", e);
+            throw new IOException("Failed to download from server.", e);
         }
     }
 

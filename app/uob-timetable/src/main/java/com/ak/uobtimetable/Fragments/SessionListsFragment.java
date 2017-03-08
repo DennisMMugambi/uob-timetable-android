@@ -88,6 +88,8 @@ public class SessionListsFragment extends Fragment {
         // Inflate the preferences for this fragment
         view = inflater.inflate(R.layout.fragment_session_lists, container, false);
 
+        viewPager = (ViewPager)view.findViewById(R.id.viewpager);
+
         pbDownload = (ProgressBar)view.findViewById(R.id.pbDownload);
         pbDownload.setVisibility(View.INVISIBLE);
 
@@ -157,7 +159,6 @@ public class SessionListsFragment extends Fragment {
         boolean showingHiddenSessions = settings.getShowHiddenSessions() || editMode;
 
         // Init view pager
-        viewPager = (ViewPager)view.findViewById(R.id.viewpager);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
 
         // Add a fragment for each day
@@ -199,7 +200,7 @@ public class SessionListsFragment extends Fragment {
         // Update the course text labels in navigation drawer
         activity.updateNavDrawerLabels(course, sessions);
 
-        // Start the timer used to redraw the session lists every miute
+        // Start the timer used to redraw the session lists every minute
         startRedrawUpdateTimer();
 
         // Show tutorial message boxes
@@ -387,6 +388,14 @@ public class SessionListsFragment extends Fragment {
         listsUpdateHandler = null;
     }
 
+    /**
+     * Return whether the lists have been populated with sessions yet.
+     */
+    public boolean hasLoaded(){
+
+        return sessionListFragments != null && sessionListFragments.size() > 0;
+    }
+
     @Override
     public void onAttach(Context context) {
 
@@ -441,7 +450,6 @@ public class SessionListsFragment extends Fragment {
 
         private SessionListsFragment fragment;
         private Models.Course course;
-        private Models.DisplaySession sessions;
         private Exception fetchException;
 
         DownloadSessionsTask(SessionListsFragment fragment, Models.Course course){
@@ -474,22 +482,53 @@ public class SessionListsFragment extends Fragment {
             fragment.pbDownload.setVisibility(View.INVISIBLE);
 
             // Error handling
-            if (fetchException != null){
+            if (fetchException != null || response.error){
+
+                // Check whether we should load cached sessions
+                boolean useCachedSessions = fragment.hasLoaded() == false && settings.hasSessions();
+
+                // If we have previously saved sessions, we can show them
+                DialogInterface.OnClickListener clickListener = null;
+
+                if (useCachedSessions) {
+                    clickListener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            List<Models.DisplaySession> sessions = settings.getSessions();
+
+                            // Set sessions in child fragments
+                            fragment.setSessions(course, sessions, -1);
+
+                            // Show snackbar
+                            fragment.activity.showSessionSnackbar(sessions, settings.getShowHiddenSessions(), true);
+                        }
+                    };
+                }
+
+                // Log error from webservice
+                if (response != null && response.error)
+                    Logger.getInstance().error("Session download", "Server returning error msg: " + response.errorStr);
+
+                // Error message string
+                String errorMsg = "";
+
+                if (fetchException != null)
+                    errorMsg = fetchException.getMessage();
+                else
+                    errorMsg = getString(R.string.warning_server_error);
+
+                if (useCachedSessions)
+                    errorMsg += "\n\n" + getString(R.string.text_loading_cached_sessions);
+
+                // Build alert dialog
                 AlertDialog d = new AlertDialog.Builder(fragment.getActivity())
-                    .setPositiveButton(android.R.string.ok, null)
+                    .setPositiveButton(android.R.string.ok, clickListener)
                     .setTitle(R.string.warning_session_download_error)
-                    .setMessage(fetchException.getMessage())
+                    .setMessage(errorMsg)
                     .create();
                 d.show();
-                return;
-            } else if (response.error) {
-                Logger.getInstance().error("Session download", "Server returning error msg: " + response.errorStr);
-                AlertDialog d = new AlertDialog.Builder(fragment.getActivity())
-                    .setPositiveButton(android.R.string.ok, null)
-                    .setTitle(R.string.warning_session_download_error)
-                    .setMessage(R.string.warning_server_error)
-                    .create();
-                d.show();
+
                 return;
             }
 
