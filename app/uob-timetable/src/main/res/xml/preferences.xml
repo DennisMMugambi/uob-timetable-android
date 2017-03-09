@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- The last CheckboxPreference in the second category is not animating like the other
+         checkboxes. This appears to be a bug in the framework:
+         https://code.google.com/p/android/issues/detail?id=200500 -->
+
     <PreferenceCategory
         android:title="@string/preference_category_display">
 
@@ -29,11 +33,6 @@
             android:summaryOn="@string/pref_refresh_cellular_on"
             android:summaryOff="@string/pref_refresh_cellular_off"
             android:persistent="false"/>
-
-        <!-- The last preference in this category does not animate for some reason. Adding a
-             dummy last item works around this issue. It does however leave a separator at the
-             bottom of the list. http://stackoverflow.com/a/37780244 -->
-        <com.ak.uobtimetable.DummyPreference />
 
     </PreferenceCategory>
 
