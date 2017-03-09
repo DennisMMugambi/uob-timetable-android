@@ -21,6 +21,9 @@ Debug APK available [here](app/uob-timetable/build/outputs/apk/uob-timetable-deb
 
 ## Changelog
 
+- 2.3 (14)
+	- Cached sessions now loaded if download fails
+	- Improved empty session list UI
 - 2.2 (13)
 	- Improved settings UI
 	- Fixed Term Date app shortcut bugs
