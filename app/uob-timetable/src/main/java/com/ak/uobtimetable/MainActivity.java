@@ -538,7 +538,8 @@ public class MainActivity extends AppCompatActivity
                 "<a href=\"http://square.github.io/okhttp/\">square/okhttp</a> (Apache 2.0)<br>" +
                 "<a href=\"https://github.com/google/gson\">google/gson</a> (Apache 2.0)<br>" +
                 "<a href=\"https://commons.apache.org/proper/commons-lang/\">apache/commons-lang</a> (Apache 2.0)<br>" +
-                "<a href=\"https://github.com/h6ah4i/android-tablayouthelper\">h6ah4i/android-tablayouthelper</a> (Apache 2.0)<br>"+
+                "<a href=\"https://github.com/h6ah4i/android-tablayouthelper\">h6ah4i/android-tablayouthelper</a> (Apache 2.0)<br>" +
+                "<a href=\"https://github.com/bugsnag/bugsnag-android\">bugsnag/bugsnag-android</a> (MIT)<br>" +
                 "<br>" +
                 getString(R.string.text_disclaimer),
                 contactUri);

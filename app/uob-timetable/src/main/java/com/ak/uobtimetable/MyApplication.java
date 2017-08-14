@@ -5,6 +5,8 @@ import android.app.Application;
 import com.ak.uobtimetable.Utilities.AndroidUtilities;
 import com.ak.uobtimetable.Utilities.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
+import com.bugsnag.android.Bugsnag;
+import com.bugsnag.android.Configuration;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,7 +41,7 @@ public class MyApplication extends Application {
             .info("Application", "API Level Name: " + AndroidUtilities.apiLevelName())
             .info("Application", "Git Commit Hash: " + BuildConfig.GIT_COMMIT_HASH)
             .info("Application", "Git Branch: " + BuildConfig.GIT_BRANCH)
-            .info("Application", "Build type: " + (BuildConfig.IS_DEBUG ? "Debug" : "Release"))
+            .info("Application", "Build type: " + getBuildTypeString())
             .info("Application", "Build keys: " + (AndroidUtilities.isReleaseSigned(this) ? "Release" : "Debug"))
             .info("Application", "Version code: " + AndroidUtilities.buildVersionCode(this))
             .info("Application", "Version name: " + AndroidUtilities.buildVersionName(this))
@@ -48,6 +50,31 @@ public class MyApplication extends Application {
             .info("Application", "Launch count: " +  settings.incrementLaunchCount())
             .info("Application", "Network: " + AndroidUtilities.getNetworkRaw(this))
             .info("Application", "Tablet layout: " + AndroidUtilities.isTabletLayout(this));
+
+        // Init bugsnag
+        String bugsnagKey = BuildConfig.BUGSNAG_KEY;
+        if (bugsnagKey.length() == 0){
+            Logger.getInstance().error("Application", "No Bugsnag key");
+        } else {
+            String[] bugsnagVersionParts = {
+                BuildConfig.VERSION_NAME,
+                Integer.valueOf(BuildConfig.VERSION_CODE).toString(),
+                BuildConfig.GIT_COMMIT_HASH
+            };
+            String bugsnagVersion = StringUtils.join(bugsnagVersionParts, ":");
+
+            Configuration config = new Configuration(bugsnagKey);
+            config.setAppVersion(bugsnagVersion);
+            config.setReleaseStage(getBuildTypeString());
+
+            Bugsnag.init(this, config);
+            Logger.getInstance().info("Application", "Bugsnag initialised");
+        }
+    }
+
+    private String getBuildTypeString(){
+
+        return BuildConfig.IS_DEBUG ? "Debug" : "Release";
     }
 
     public boolean hadPrefDataOnLaunch(){

@@ -27,6 +27,8 @@ import com.ak.uobtimetable.R;
 import com.ak.uobtimetable.Utilities.GeneralUtilities;
 import com.ak.uobtimetable.Utilities.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
+import com.bugsnag.android.Bugsnag;
+import com.google.gson.JsonParseException;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 
 /**
@@ -466,8 +468,14 @@ public class SessionListsFragment extends Fragment {
                 Service service = new Service(getContext());
                 response = service.getSessions(course.sessionUrl);
             } catch (Exception e) {
-                Logger.getInstance().error("Session download", GeneralUtilities.nestedThrowableToString(e));
                 fetchException = e;
+                Logger.getInstance().error("Session download", GeneralUtilities.nestedThrowableToString(e));
+
+                // Notify for JSON parse exception, nothing useful to tell the user
+                if (e instanceof JsonParseException) {
+                    Bugsnag.notify(e);
+                    Logger.getInstance().error("Session download", "Failed to parse JSON");
+                }
             }
             return response;
         }
