@@ -15,9 +15,9 @@ staff members
 - Term dates
 - Offline support
 
-## Build
+## Builds
 
-Debug APK available [here](app/uob-timetable/build/outputs/apk/uob-timetable-debug.apk?raw=true)
+See releases tab
 
 ## Changelog
 
