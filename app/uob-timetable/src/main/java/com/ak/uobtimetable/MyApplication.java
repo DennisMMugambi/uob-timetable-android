@@ -53,8 +53,9 @@ public class MyApplication extends Application {
 
         // Init bugsnag
         String bugsnagKey = BuildConfig.BUGSNAG_KEY;
-        if (bugsnagKey.length() == 0){
-            Logger.getInstance().error("Application", "No Bugsnag key");
+        // Key is always inserted in to BuildConfig as a string
+        if (bugsnagKey.equals("null")){
+            Logger.getInstance().error("Application", "Can't init Bugsnag - No key");
         } else {
             String[] bugsnagVersionParts = {
                 BuildConfig.VERSION_NAME,
