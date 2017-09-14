@@ -135,7 +135,7 @@ public class Service {
 
         // Log no sessions
         if (response.sessions.size() == 0)
-            Logger.getInstance().warn("Service", "0 sessions in response");
+            Logger.getInstance().warn("Service", "0 sessions in response for URL: " + url);
 
         return response;
     }
