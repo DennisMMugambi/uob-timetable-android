@@ -27,7 +27,6 @@ import com.ak.uobtimetable.R;
 import com.ak.uobtimetable.Utilities.GeneralUtilities;
 import com.ak.uobtimetable.Utilities.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
-import com.bugsnag.android.Bugsnag;
 import com.google.gson.JsonParseException;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 
@@ -468,14 +467,13 @@ public class SessionListsFragment extends Fragment {
                 Service service = new Service(getContext());
                 response = service.getSessions(course.sessionUrl);
             } catch (Exception e) {
-                fetchException = e;
-                Logger.getInstance().error("Session download", GeneralUtilities.nestedThrowableToString(e));
-
-                // Notify for JSON parse exception, nothing useful to tell the user
+                // Wrap JSON parse exception
                 if (e instanceof JsonParseException) {
-                    Bugsnag.notify(e);
-                    Logger.getInstance().error("Session download", "Failed to parse JSON");
+                    e = new Exception("Failed to parse JSON", e);
                 }
+
+                fetchException = e;
+                Logger.getInstance().error("Session download", e);
             }
             return response;
         }
@@ -515,8 +513,10 @@ public class SessionListsFragment extends Fragment {
                 }
 
                 // Log error from webservice
-                if (response != null && response.error)
-                    Logger.getInstance().error("Session download", "Server returning error msg: " + response.errorStr);
+                if (response != null && response.error) {
+                    Exception e = new Exception("Server returning error msg: " + response.errorStr);
+                    Logger.getInstance().error("Session download", e);
+                }
 
                 // Error message string
                 String errorMsg = "";

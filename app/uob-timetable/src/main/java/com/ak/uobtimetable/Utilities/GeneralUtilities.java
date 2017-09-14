@@ -68,7 +68,7 @@ public class GeneralUtilities {
         stringBuilder.append(throwable.toString());
 
         while (throwable.getCause() != null) {
-            stringBuilder.append(" >>> " + throwable.getCause().toString());
+            stringBuilder.append("\n>>> " + throwable.getCause().toString());
             throwable = throwable.getCause();
         }
 

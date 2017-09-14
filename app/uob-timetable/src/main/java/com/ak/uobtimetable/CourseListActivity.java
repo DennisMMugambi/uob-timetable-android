@@ -23,7 +23,6 @@ import com.ak.uobtimetable.Utilities.AndroidUtilities;
 import com.ak.uobtimetable.Utilities.GeneralUtilities;
 import com.ak.uobtimetable.Utilities.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
-import com.bugsnag.android.Bugsnag;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
@@ -182,7 +181,8 @@ public class CourseListActivity extends AppCompatActivity {
                 spDepartments.setSelection(selectedDepartmentIndex, false);
                 updateCourseList(selectedDepartmentIndex);
             } catch (Exception e) {
-                Logger.getInstance().error("CourseListActivity", "Failed to select department at index: " + selectedDepartmentIndex);
+                e = new Exception("Failed to select department at index", e);
+                Logger.getInstance().error("CourseListActivity", e);
             }
         }
     }
@@ -204,14 +204,13 @@ public class CourseListActivity extends AppCompatActivity {
                 Service service = new Service(getApplicationContext());
                 response = service.getCourses();
             } catch (Exception e) {
-                fetchException = e;
-                Logger.getInstance().error("Course download", GeneralUtilities.nestedThrowableToString(e));
-
-                // Notify for JSON parse exception, nothing useful to tell the user
+                // Wrap JSON parse exception
                 if (e instanceof JsonParseException) {
-                    Bugsnag.notify(e);
-                    Logger.getInstance().error("Course download", "Failed to parse JSON");
+                    e = new Exception("Failed to parse JSON", e);
                 }
+
+                fetchException = e;
+                Logger.getInstance().error("Course download", e);
             }
             return response;
         }

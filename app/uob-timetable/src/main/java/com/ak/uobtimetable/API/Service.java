@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 import com.ak.uobtimetable.Utilities.Logger;
@@ -81,8 +82,9 @@ public class Service {
 
             return bodyString;
 
+        } catch (SocketTimeoutException e) {
+            throw new IOException("Communication with server timed out. Please check your internet connection.", e);
         } catch (Exception e){
-
             throw new IOException("Failed to download from server.", e);
         }
     }

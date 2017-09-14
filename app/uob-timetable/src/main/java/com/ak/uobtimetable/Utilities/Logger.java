@@ -2,6 +2,9 @@ package com.ak.uobtimetable.Utilities;
 
 import android.util.Log;
 
+import com.bugsnag.android.Bugsnag;
+import com.bugsnag.android.Severity;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,6 +46,8 @@ public class Logger {
             String colour = "";
             if (typeColours.containsKey(type))
                 colour = typeColours.get(type);
+
+            message = message.replace("\n", "<br/>");
 
             DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
             String text = dateFormat.format(dateTime) + " > " + tag + " - " + message;
@@ -105,6 +110,8 @@ public class Logger {
         entries.add(new Entry(Type.warn, tag, message));
         Log.w(tag, message);
 
+        this.logWarning(message);
+
         return this;
     }
 
@@ -114,6 +121,24 @@ public class Logger {
         Log.e(tag, message);
 
         return this;
+    }
+
+    public Logger error(String tag, Exception exception){
+
+        this.error(tag, GeneralUtilities.nestedThrowableToString(exception));
+        this.logException(exception);
+
+        return this;
+    }
+
+    private void logException(Exception exception){
+
+        Bugsnag.notify(exception, Severity.ERROR);
+    }
+
+    private void logWarning(String message){
+
+        Bugsnag.notify(new Exception(message), Severity.WARNING);
     }
 
     public String toString(){
