@@ -1,6 +1,6 @@
 # UoB timetable
 
-This application displays the 5-day timetable for any University of Bedfordshire 
+This application displays the 5-day timetable for any University of Bedfordshire
 course.
 
 [![Google Play badge](screenshots/assets/google-play-badge.png "Google Play badge")](https://play.google.com/store/apps/details?id=com.ak.uobtimetable)
@@ -9,7 +9,7 @@ course.
 
 ## Features
 
-- Detailed information for each session including the unit, time, rooms and 
+- Detailed information for each session including the unit, time, rooms and
 staff members
 - Session hiding
 - Term dates
@@ -21,6 +21,10 @@ See releases tab
 
 ## Changelog
 
+- 2.4 (15)
+	- Added adaptive icons for Android 8.0
+	- Fixed crash in course selector
+	- Improved error handling
 - 2.3 (14)
 	- Cached sessions now loaded if download fails
 	- Improved empty session list UI
