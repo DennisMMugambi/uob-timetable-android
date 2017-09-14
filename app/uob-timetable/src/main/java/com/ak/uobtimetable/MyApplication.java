@@ -36,26 +36,29 @@ public class MyApplication extends Application {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm dd/MM/yy");
 
+        String loggerKey = "Application";
+
         Logger.getInstance()
-            .info("Application", "API Level: " + AndroidUtilities.apiLevel())
-            .info("Application", "API Level Name: " + AndroidUtilities.apiLevelName())
-            .info("Application", "Git Commit Hash: " + BuildConfig.GIT_COMMIT_HASH)
-            .info("Application", "Git Branch: " + BuildConfig.GIT_BRANCH)
-            .info("Application", "Build type: " + getBuildTypeString())
-            .info("Application", "Build keys: " + (AndroidUtilities.isReleaseSigned(this) ? "Release" : "Debug"))
-            .info("Application", "Version code: " + AndroidUtilities.buildVersionCode(this))
-            .info("Application", "Version name: " + AndroidUtilities.buildVersionName(this))
-            .info("Application", "Build date: " + dateFormat.format(AndroidUtilities.buildDate()))
-            .info("Application", "Package update date: " + dateFormat.format(AndroidUtilities.packageUpdateDate(this)))
-            .info("Application", "Launch count: " +  settings.incrementLaunchCount())
-            .info("Application", "Network: " + AndroidUtilities.getNetworkRaw(this))
-            .info("Application", "Tablet layout: " + AndroidUtilities.isTabletLayout(this));
+            .info(loggerKey, "API level: " + AndroidUtilities.apiLevel())
+            .info(loggerKey, "API level name: " + AndroidUtilities.apiLevelName())
+            .info(loggerKey, "Target API level: " + AndroidUtilities.targetApiLevel(this))
+            .info(loggerKey, "Git commit hash: " + BuildConfig.GIT_COMMIT_HASH)
+            .info(loggerKey, "Git branch: " + BuildConfig.GIT_BRANCH)
+            .info(loggerKey, "Build type: " + getBuildTypeString())
+            .info(loggerKey, "Build keys: " + (AndroidUtilities.isReleaseSigned(this) ? "Release" : "Debug"))
+            .info(loggerKey, "Version code: " + AndroidUtilities.buildVersionCode(this))
+            .info(loggerKey, "Version name: " + AndroidUtilities.buildVersionName(this))
+            .info(loggerKey, "Build date: " + dateFormat.format(AndroidUtilities.buildDate()))
+            .info(loggerKey, "Package update date: " + dateFormat.format(AndroidUtilities.packageUpdateDate(this)))
+            .info(loggerKey, "Launch count: " +  settings.incrementLaunchCount())
+            .info(loggerKey, "Network: " + AndroidUtilities.getNetworkRaw(this))
+            .info(loggerKey, "Tablet layout: " + AndroidUtilities.isTabletLayout(this));
 
         // Init bugsnag
         String bugsnagKey = BuildConfig.BUGSNAG_KEY;
         // Key is always inserted in to BuildConfig as a string
         if (bugsnagKey.equals("null")){
-            Logger.getInstance().error("Application", "Can't init Bugsnag - No key");
+            Logger.getInstance().error(loggerKey, "Can't init Bugsnag - No key");
         } else {
             String[] bugsnagVersionParts = {
                 BuildConfig.VERSION_NAME,
@@ -69,7 +72,7 @@ public class MyApplication extends Application {
             config.setReleaseStage(getBuildTypeString());
 
             Bugsnag.init(this, config);
-            Logger.getInstance().info("Application", "Bugsnag initialised");
+            Logger.getInstance().info(loggerKey, "Bugsnag initialised");
         }
     }
 

@@ -3,6 +3,7 @@ package com.ak.uobtimetable.Utilities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.net.ConnectivityManager;
@@ -29,6 +30,15 @@ import javax.security.auth.x500.X500Principal;
 public class AndroidUtilities {
 
     public enum NetworkType { None, Infrastructure, Cellular }
+
+    private static PackageInfo getPackageInfo(Context context){
+
+        try {
+            return context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
+    }
 
     public static boolean hasNetwork(Context context){
 
@@ -76,20 +86,20 @@ public class AndroidUtilities {
         }
     }
 
-    public static int buildVersionCode(Context c) {
+    public static int buildVersionCode(Context context) {
 
         try {
-            return c.getPackageManager().getPackageInfo(c.getPackageName(), 0).versionCode;
+            return getPackageInfo(context).versionCode;
         }
         catch (Exception e) {
             return -1;
         }
     }
 
-    public static String buildVersionName(Context c) {
+    public static String buildVersionName(Context context) {
 
         try {
-            return c.getPackageManager().getPackageInfo(c.getPackageName(), 0).versionName;
+            return getPackageInfo(context).versionName;
         } catch (Exception e) {
             return "";
         }
@@ -109,6 +119,16 @@ public class AndroidUtilities {
         }
     }
 
+    public static int targetApiLevel(Context context){
+
+        try {
+            return getPackageInfo(context).applicationInfo.targetSdkVersion;
+        }
+        catch (Exception e) {
+            return -1;
+        }
+    }
+
     public static Date buildDate(){
 
         return new Date(BuildConfig.TIMESTAMP);
@@ -117,7 +137,7 @@ public class AndroidUtilities {
     public static Date packageUpdateDate(Context context){
 
         try {
-            long ms = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).firstInstallTime;
+            long ms = getPackageInfo(context).firstInstallTime;
             return new Date(ms);
         } catch (Exception e){
             return new Date();
