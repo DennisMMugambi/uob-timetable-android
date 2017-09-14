@@ -39,10 +39,9 @@ public class CourseListActivity extends AppCompatActivity {
     public List<Models.Department> departments = new ArrayList<>();
     public List<Models.Course> courses = new ArrayList<>();
     public List<Models.Course> coursesForSelectedDepartment = new ArrayList<>();
+    private int selectedDepartmentIndex = -1;
 
     public enum Args {
-        courses,
-        departments,
         departmentIndex
     }
 
@@ -58,22 +57,14 @@ public class CourseListActivity extends AppCompatActivity {
 
         pbDownload.setVisibility(View.INVISIBLE);
 
-        // Download the course list if first run
-        if (savedInstanceState == null){
-            pbDownload.setVisibility(View.VISIBLE);
-            new DownloadCoursesTask(this).execute();
+        // Copy the selected department index from previous instance state
+        if (savedInstanceState != null) {
+            selectedDepartmentIndex = savedInstanceState.getInt(Args.departmentIndex.name());
         }
-        // Otherwise load saved values
-        else {
-            Gson gson = Service.makeGson();
-            String courseJson = savedInstanceState.getString(Args.courses.name());
-            String departmentJson = savedInstanceState.getString(Args.departments.name());
 
-            courses = gson.fromJson(courseJson, new TypeToken<List<Models.Course>>(){}.getType());
-            departments = gson.fromJson(departmentJson, new TypeToken<List<Models.Department>>(){}.getType());
-            int selectedDepartmentIndex = savedInstanceState.getInt(Args.departmentIndex.name());
-            setUpUi(departments, courses, selectedDepartmentIndex);
-        }
+        // Download the course list
+        pbDownload.setVisibility(View.VISIBLE);
+        new DownloadCoursesTask(this).execute();
 
         // Set department select handler
         spDepartments.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -95,34 +86,35 @@ public class CourseListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-            // Get selected course
-            final Models.Course selectedCourse = coursesForSelectedDepartment.get(position);
+                // Get selected course
+                final Models.Course selectedCourse = coursesForSelectedDepartment.get(position);
 
-            // Ask user to confirm
-            String msg = String.format("Do you want to set <i>%s</i> as your course?", selectedCourse.name);
-            AlertDialog.Builder builder = new AlertDialog.Builder(CourseListActivity.this)
-                .setTitle("Confirm")
-                .setMessage(AndroidUtilities.fromHtml(msg));
-            builder.setPositiveButton(
-                R.string.dialog_positive,
-                new DialogInterface.OnClickListener() {
+                // Ask user to confirm
+                String msg = String.format("Do you want to set <i>%s</i> as your course?", selectedCourse.name);
+                AlertDialog.Builder builder = new AlertDialog.Builder(CourseListActivity.this)
+                    .setTitle("Confirm")
+                    .setMessage(AndroidUtilities.fromHtml(msg));
+                builder
+                    .setPositiveButton(
+                        R.string.dialog_positive,
+                        new DialogInterface.OnClickListener() {
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                        dialog.dismiss();
+                                dialog.dismiss();
 
-                        // Save course
-                        SettingsManager.getInstance(CourseListActivity.this).setCourse(selectedCourse);
+                                // Save course
+                                SettingsManager.getInstance(CourseListActivity.this).setCourse(selectedCourse);
 
-                        Intent i = new Intent(CourseListActivity.this, MainActivity.class)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(i);
-                    }
-                }
-            )
-            .setNegativeButton(R.string.dialog_negative, null)
-            .show();
+                                Intent i = new Intent(CourseListActivity.this, MainActivity.class)
+                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(i);
+                            }
+                        }
+                    )
+                    .setNegativeButton(R.string.dialog_negative, null)
+                    .show();
             }
         });
 
@@ -133,10 +125,8 @@ public class CourseListActivity extends AppCompatActivity {
 
         Logger.getInstance().debug("CourseListActivity", "Saving state");
 
-        Gson gson = Service.makeGson();
-
-        outState.putString(Args.courses.name(), gson.toJson(courses));
-        outState.putString(Args.departments.name(), gson.toJson(departments));
+        // Store department index. The course list JSON cannot be stored as we would
+        // likely hit the 1mb bundle limit and throw an exception on 7.0+.
         outState.putInt(Args.departmentIndex.name(), spDepartments.getSelectedItemPosition());
 
         super.onSaveInstanceState(outState);
@@ -249,7 +239,7 @@ public class CourseListActivity extends AppCompatActivity {
             departments = response.departments;
 
             // Populate UI
-            setUpUi(departments, courses, -1);
+            setUpUi(departments, courses, selectedDepartmentIndex);
         }
     }
 }
