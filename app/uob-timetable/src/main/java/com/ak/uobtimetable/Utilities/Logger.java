@@ -58,6 +58,7 @@ public class Logger {
 
     private List<Entry> entries;
     private static Logger instance;
+    private boolean canLog = false;
 
     public enum Type {
         verbose,
@@ -73,12 +74,19 @@ public class Logger {
         info("Logger", "Initialised");
     }
 
-    public static Logger getInstance(){
+    public static Logger getInstance() {
 
         if (instance == null)
             instance = new Logger();
 
         return instance;
+    }
+
+    public Logger setCanLog(boolean canLog){
+
+        this.canLog = canLog;
+
+        return this;
     }
 
     public Logger verbose(String tag, String message){
@@ -133,12 +141,14 @@ public class Logger {
 
     private void logException(Exception exception){
 
-        Bugsnag.notify(exception, Severity.ERROR);
+        if (canLog)
+            Bugsnag.notify(exception, Severity.ERROR);
     }
 
     private void logWarning(String message){
 
-        Bugsnag.notify(new Exception(message), Severity.WARNING);
+        if (canLog)
+            Bugsnag.notify(new Exception(message), Severity.WARNING);
     }
 
     public String toString(){

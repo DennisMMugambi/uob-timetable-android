@@ -29,14 +29,35 @@ public class MyApplication extends Application {
         super.onCreate();
 
         SettingsManager settings = SettingsManager.getInstance(this);
-
         hadPrefDataOnLaunch = settings.isEmpty() == false;
-
         settings.clearOldData();
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm dd/MM/yy");
-
         String loggerKey = "Application";
+
+        // Init bugsnag
+        String bugsnagKey = BuildConfig.BUGSNAG_KEY;
+        // Key is always inserted in to BuildConfig as a string
+        if (bugsnagKey.equals("null")){
+            Logger.getInstance().error(loggerKey, "Can't init Bugsnag - No key");
+        } else {
+            String[] bugsnagVersionParts = {
+                    BuildConfig.VERSION_NAME,
+                    Integer.valueOf(BuildConfig.VERSION_CODE).toString(),
+                    BuildConfig.GIT_COMMIT_HASH
+            };
+            String bugsnagVersion = StringUtils.join(bugsnagVersionParts, ":");
+
+            Configuration config = new Configuration(bugsnagKey);
+            config.setAppVersion(bugsnagVersion);
+            config.setReleaseStage(getBuildTypeString());
+
+            Bugsnag.init(this, config);
+            Logger.getInstance()
+                .info(loggerKey, "Bugsnag initialised")
+                .setCanLog(true);
+        }
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm dd/MM/yy");
 
         Logger.getInstance()
             .info(loggerKey, "API level: " + AndroidUtilities.apiLevel())
@@ -53,27 +74,6 @@ public class MyApplication extends Application {
             .info(loggerKey, "Launch count: " +  settings.incrementLaunchCount())
             .info(loggerKey, "Network: " + AndroidUtilities.getNetworkRaw(this))
             .info(loggerKey, "Tablet layout: " + AndroidUtilities.isTabletLayout(this));
-
-        // Init bugsnag
-        String bugsnagKey = BuildConfig.BUGSNAG_KEY;
-        // Key is always inserted in to BuildConfig as a string
-        if (bugsnagKey.equals("null")){
-            Logger.getInstance().error(loggerKey, "Can't init Bugsnag - No key");
-        } else {
-            String[] bugsnagVersionParts = {
-                BuildConfig.VERSION_NAME,
-                Integer.valueOf(BuildConfig.VERSION_CODE).toString(),
-                BuildConfig.GIT_COMMIT_HASH
-            };
-            String bugsnagVersion = StringUtils.join(bugsnagVersionParts, ":");
-
-            Configuration config = new Configuration(bugsnagKey);
-            config.setAppVersion(bugsnagVersion);
-            config.setReleaseStage(getBuildTypeString());
-
-            Bugsnag.init(this, config);
-            Logger.getInstance().info(loggerKey, "Bugsnag initialised");
-        }
     }
 
     private String getBuildTypeString(){
