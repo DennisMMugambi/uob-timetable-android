@@ -123,6 +123,11 @@ public class Service {
 
         Logger.getInstance().info("Service", "getSessions response time: " + String.format("%.02f", response.responseTime));
 
+        // If error, return response now. Further code access attributes
+        // that will be null due to error response.
+        if (response.error)
+            return response;
+
         // Ensure all sessions are visible by default
         for (Models.DisplaySession session : response.sessions)
             session.visible = true;
