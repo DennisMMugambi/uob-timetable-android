@@ -46,6 +46,7 @@ public class SessionListsFragment extends Fragment {
     private SettingsManager settings;
     private MainActivity activity;
     private Handler listsUpdateHandler;
+    private AsyncTask sessionDownloadTask;
 
     public enum InitialLoadMode {
         loadSessionsWithSnackbar,
@@ -132,7 +133,7 @@ public class SessionListsFragment extends Fragment {
     public void updateSessions(Models.Course course){
 
         pbDownload.setVisibility(View.VISIBLE);
-        new DownloadSessionsTask(this, course).execute();
+        sessionDownloadTask = new DownloadSessionsTask(this, course).execute();
     }
 
     /**
@@ -151,6 +152,15 @@ public class SessionListsFragment extends Fragment {
      */
     private void setSessions(Models.Course course, List<Models.DisplaySession> sessions,
                             int initialIndex){
+
+        // Check if this fragment has been added before continuing
+        // in order to prevent crash if the host activity is no longer
+        // available (eg due to configuration change). Does prevent
+        // the update of sessions but this is preferable to crashing.
+        if (isAdded() == false) {
+            Logger.getInstance().info("SesionListsFragment", "not isAdded in setSessions");
+            return;
+        }
 
         // Cache data
         this.sessions = sessions;
@@ -486,6 +496,12 @@ public class SessionListsFragment extends Fragment {
 
             // Hide progress bar
             fragment.pbDownload.setVisibility(View.INVISIBLE);
+
+            // Check for cancelled before applying any changes
+            if (isCancelled()) {
+                Logger.getInstance().info("DownloadSessionsTask", "cancelled in onPostExecute ");
+                return;
+            }
 
             // Error handling
             if (fetchException != null || response.error){

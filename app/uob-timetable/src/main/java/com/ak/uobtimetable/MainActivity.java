@@ -409,6 +409,14 @@ public class MainActivity extends AppCompatActivity
             frSessions.stopRedrawUpdateTimer();
     }
 
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+        Logger.getInstance().debug("MainActivity", "OnDestroy");
+    }
+
     private void setMenuVisible(Boolean visible){
 
         if (visible == null)
