@@ -205,7 +205,10 @@ public class MainActivity extends AppCompatActivity
         fragmentManager.executePendingTransactions();
 
         // Show rate dialog on X launch
-        if (settings.getLaunchCount() > 7 && settings.getShownRateDialog() == false){
+        if (settings.getLaunchCount() > 7 &&
+            settings.getShownRateDialog() == false &&
+            AndroidUtilities.hasNetwork(this)){
+
             AlertDialog d = new AlertDialog.Builder(this)
                 .setNegativeButton("No thanks", null)
                 .setPositiveButton("Sure", new DialogInterface.OnClickListener() {
