@@ -40,9 +40,11 @@ public class CourseListActivity extends AppCompatActivity {
     public List<Models.Course> courses = new ArrayList<>();
     public List<Models.Course> coursesForSelectedDepartment = new ArrayList<>();
     private int selectedDepartmentIndex = -1;
+    private String initialDepartmentId = null;
 
     public enum Args {
-        departmentIndex
+        departmentIndex,
+        departmentId
     }
 
     @Override
@@ -60,6 +62,10 @@ public class CourseListActivity extends AppCompatActivity {
         // Copy the selected department index from previous instance state
         if (savedInstanceState != null) {
             selectedDepartmentIndex = savedInstanceState.getInt(Args.departmentIndex.name());
+        }
+        // Or check if we were passed a course name or ID
+        else if (getIntent().hasExtra(Args.departmentId.name())){
+            initialDepartmentId = getIntent().getStringExtra(Args.departmentId.name());
         }
 
         // Download the course list
@@ -165,7 +171,15 @@ public class CourseListActivity extends AppCompatActivity {
         ArrayAdapter<String> departmentAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, departmentNamesArr);
         spDepartments.setAdapter(departmentAdapter);
 
-        // Set selected department
+        // Set selected department. If we have an ID, set the index based on that.
+        // The index will then be saved for future onCreate calls.
+        if (initialDepartmentId != null){
+            for (int i = 0; i < departments.size(); i++){
+                if (departments.get(i).id.equals(initialDepartmentId))
+                    selectedDepartmentIndex = i;
+            }
+        }
+        // Set course by index, if we have one.
         if (selectedDepartmentIndex >= 0) {
             try {
                 spDepartments.setSelection(selectedDepartmentIndex, false);

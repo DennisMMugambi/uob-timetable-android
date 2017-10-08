@@ -3,6 +3,7 @@ package com.ak.uobtimetable.Fragments;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,9 +23,9 @@ import java.util.List;
 
 import com.ak.uobtimetable.API.Service;
 import com.ak.uobtimetable.API.Models;
+import com.ak.uobtimetable.CourseListActivity;
 import com.ak.uobtimetable.MainActivity;
 import com.ak.uobtimetable.R;
-import com.ak.uobtimetable.Utilities.GeneralUtilities;
 import com.ak.uobtimetable.Utilities.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
 import com.google.gson.JsonParseException;
@@ -545,13 +546,39 @@ public class SessionListsFragment extends Fragment {
                 if (useCachedSessions)
                     errorMsg += "\n\n" + getString(R.string.text_loading_cached_sessions);
 
-                // Build alert dialog
-                AlertDialog d = new AlertDialog.Builder(fragment.getActivity())
-                    .setPositiveButton(android.R.string.ok, clickListener)
-                    .setTitle(R.string.warning_session_download_error)
-                    .setMessage(errorMsg)
-                    .create();
-                d.show();
+                // Build alert dialog. Show either a generic error dialog, or a custom
+                // dialog for invalid course errors.
+
+                // API currently only returns error strings and not codes...
+                boolean isCourseInvalidError =
+                    response.error &&
+                    response.errorStr != null &&
+                    response.errorStr.toLowerCase().contains("invalid course");
+
+                if (!isCourseInvalidError){
+                    AlertDialog d = new AlertDialog.Builder(fragment.getActivity())
+                        .setPositiveButton(android.R.string.ok, clickListener)
+                        .setTitle(R.string.warning_session_download_error)
+                        .setMessage(errorMsg)
+                        .create();
+                    d.show();
+                } else {
+                    AlertDialog d = new AlertDialog.Builder(fragment.getActivity())
+                        .setPositiveButton(R.string.dialog_change_course, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent intent = new Intent(fragment.getActivity(), CourseListActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                intent.putExtra(CourseListActivity.Args.departmentId.name(), course.department.id);
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton(R.string.dialog_close, clickListener)
+                        .setTitle(R.string.warning_course_invalid)
+                        .setMessage(R.string.text_course_invalid)
+                        .create();
+                    d.show();
+                }
 
                 return;
             }

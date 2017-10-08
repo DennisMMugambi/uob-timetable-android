@@ -12,6 +12,7 @@
     <string name="dialog_positive">Yes</string>
     <string name="dialog_negative">No</string>
     <string name="dialog_close">Close</string>
+    <string name="dialog_change_course">Reselect course</string>
 
     <string name="text_disclaimer">This is a third party application which is in no way affiliated with the University of Bedfordshire.</string>
     <string name="text_tutorial_disclaimer">This data is best used as a guide as it is not obtained directly from the university and may not be 100% accurate.</string>
@@ -19,6 +20,7 @@
     <string name="text_cant_toggle_show_hide">You need to exit edit mode, by holding down on a session, before you can toggle hidden sessions.</string>
     <string name="text_no_sessions">No sessions to display.</string>
     <string name="text_loading_cached_sessions">Loading cached sessions instead.</string>
+    <string name="text_course_invalid">Your selected course is no longer accessible. Please reselect your course from the list.</string>
 
     <string name="text_welcome_standard">The next screen will ask you to select a course.</string>
     <string name="text_welcome_migrate">We\'ve updated!\n\nYou\'ll need to re-select your course.</string>
@@ -28,6 +30,7 @@
     <string name="warning_course_download_error">Course download error</string>
     <string name="warning_server_error">Server error - please try again later.</string>
     <string name="warning_cant_toggle_show_hide">Can\'t toggle hidden sessions.</string>
+    <string name="warning_course_invalid">Course inaccessible</string>
 
     <string name="net_required_first_run">You\'ll need an internet connection to initially download your timetable, after that you can access it offline.</string>
     <string name="net_required_courses">A network connection is required to fetch course data.</string>
