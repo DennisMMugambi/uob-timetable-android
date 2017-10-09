@@ -551,6 +551,7 @@ public class SessionListsFragment extends Fragment {
 
                 // API currently only returns error strings and not codes...
                 boolean isCourseInvalidError =
+                    response != null &&
                     response.error &&
                     response.errorStr != null &&
                     response.errorStr.toLowerCase().contains("invalid course");
