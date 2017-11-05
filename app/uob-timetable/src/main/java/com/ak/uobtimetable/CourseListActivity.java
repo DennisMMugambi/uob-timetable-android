@@ -20,12 +20,9 @@ import com.ak.uobtimetable.API.Service;
 import com.ak.uobtimetable.API.Models;
 import com.ak.uobtimetable.ListAdapters.CourseListAdapter;
 import com.ak.uobtimetable.Utilities.AndroidUtilities;
-import com.ak.uobtimetable.Utilities.GeneralUtilities;
-import com.ak.uobtimetable.Utilities.Logger;
+import com.ak.uobtimetable.Utilities.Logging.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
-import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * Activity which allows the user to select their course.

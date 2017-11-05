@@ -3,7 +3,10 @@ package com.ak.uobtimetable;
 import android.app.Application;
 
 import com.ak.uobtimetable.Utilities.AndroidUtilities;
-import com.ak.uobtimetable.Utilities.Logger;
+import com.ak.uobtimetable.Utilities.Logging.AndroidLogger;
+import com.ak.uobtimetable.Utilities.Logging.BugsnagLogger;
+import com.ak.uobtimetable.Utilities.Logging.Logger;
+import com.ak.uobtimetable.Utilities.Logging.MemoryLogger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
 import com.bugsnag.android.Bugsnag;
 import com.bugsnag.android.Configuration;
@@ -34,6 +37,11 @@ public class MyApplication extends Application {
 
         String loggerKey = "Application";
 
+        // Init logger
+        Logger.getInstance()
+            .addLogger("android", new AndroidLogger())
+            .addLogger("memory", new MemoryLogger());
+
         // Init bugsnag
         String bugsnagKey = BuildConfig.BUGSNAG_KEY;
         // Key is always inserted in to BuildConfig as a string
@@ -51,10 +59,9 @@ public class MyApplication extends Application {
             config.setAppVersion(bugsnagVersion);
             config.setReleaseStage(getBuildTypeString());
 
-            Bugsnag.init(this, config);
             Logger.getInstance()
-                .info(loggerKey, "Bugsnag initialised")
-                .setCanLog(true);
+                .addLogger("bugsnag", new BugsnagLogger(this, config))
+                .info(loggerKey, "Bugsnag initialised");
         }
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm dd/MM/yy");

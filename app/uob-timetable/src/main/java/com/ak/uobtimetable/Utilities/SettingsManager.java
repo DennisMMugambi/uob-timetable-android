@@ -4,6 +4,7 @@ import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.ak.uobtimetable.Utilities.Logging.Logger;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;

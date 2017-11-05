@@ -11,7 +11,7 @@ import android.webkit.WebView;
 import android.widget.ProgressBar;
 
 import com.ak.uobtimetable.R;
-import com.ak.uobtimetable.Utilities.Logger;
+import com.ak.uobtimetable.Utilities.Logging.Logger;
 
 
 /**

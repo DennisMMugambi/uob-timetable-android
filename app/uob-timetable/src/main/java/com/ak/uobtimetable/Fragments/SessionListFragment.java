@@ -16,10 +16,8 @@ import java.util.List;
 import com.ak.uobtimetable.API.Models;
 import com.ak.uobtimetable.ListAdapters.SessionListAdapter;
 import com.ak.uobtimetable.R;
-import com.ak.uobtimetable.Utilities.Logger;
+import com.ak.uobtimetable.Utilities.Logging.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
-
-import org.w3c.dom.Text;
 
 /**
  * Fragment containing a list of sessions for a given day.

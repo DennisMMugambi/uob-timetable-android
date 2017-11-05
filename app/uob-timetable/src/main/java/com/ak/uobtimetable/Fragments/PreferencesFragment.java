@@ -7,7 +7,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 
 import com.ak.uobtimetable.R;
-import com.ak.uobtimetable.Utilities.Logger;
+import com.ak.uobtimetable.Utilities.Logging.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
 
 public class PreferencesFragment extends PreferenceFragment {

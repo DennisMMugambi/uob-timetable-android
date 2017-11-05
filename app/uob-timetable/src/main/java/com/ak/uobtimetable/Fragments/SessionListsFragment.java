@@ -26,7 +26,7 @@ import com.ak.uobtimetable.API.Models;
 import com.ak.uobtimetable.CourseListActivity;
 import com.ak.uobtimetable.MainActivity;
 import com.ak.uobtimetable.R;
-import com.ak.uobtimetable.Utilities.Logger;
+import com.ak.uobtimetable.Utilities.Logging.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
 import com.google.gson.JsonParseException;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;

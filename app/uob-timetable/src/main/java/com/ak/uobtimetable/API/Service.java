@@ -1,6 +1,7 @@
 package com.ak.uobtimetable.API;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.ak.uobtimetable.Utilities.AndroidUtilities;
 import com.google.gson.FieldNamingPolicy;
@@ -12,7 +13,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 
-import com.ak.uobtimetable.Utilities.Logger;
+import com.ak.uobtimetable.Utilities.Logging.Logger;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -44,7 +45,7 @@ public class Service {
     }
 
     private Request makeRequest(String url){
-
+        
         // Build a new request with an explicitly set User-Agent, otherwise the UA
         // gets set to "okhttp/x.y.z"
         String userAgent = System.getProperty("http.agent");

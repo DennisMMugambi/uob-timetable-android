@@ -33,7 +33,7 @@ import java.util.List;
 import com.ak.uobtimetable.API.Models;
 import com.ak.uobtimetable.Fragments.SessionListsFragment;
 import com.ak.uobtimetable.Fragments.TermDatesFragment;
-import com.ak.uobtimetable.Utilities.Logger;
+import com.ak.uobtimetable.Utilities.Logging.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
 import com.ak.uobtimetable.Utilities.AndroidUtilities;
 

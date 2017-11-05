@@ -16,6 +16,7 @@ import android.view.View;
 
 import com.ak.uobtimetable.BuildConfig;
 import com.ak.uobtimetable.R;
+import com.ak.uobtimetable.Utilities.Logging.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;

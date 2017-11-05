@@ -7,14 +7,12 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ak.uobtimetable.Fragments.PreferencesFragment;
 import com.ak.uobtimetable.Utilities.AndroidUtilities;
-import com.ak.uobtimetable.Utilities.Logger;
+import com.ak.uobtimetable.Utilities.Logging.Logger;
+import com.ak.uobtimetable.Utilities.Logging.MemoryLogger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
 
 import java.util.ArrayList;
@@ -132,7 +130,8 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void updateLog(){
 
-        tvLog.setText(AndroidUtilities.fromHtml(Logger.getInstance().toHtml()));
+        MemoryLogger memLogger = (MemoryLogger)Logger.getInstance().getLogger("memory");
+        tvLog.setText(AndroidUtilities.fromHtml(memLogger.toHtml()));
     }
 
     @Override
