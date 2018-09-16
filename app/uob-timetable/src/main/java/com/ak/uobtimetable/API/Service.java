@@ -28,7 +28,7 @@ public class Service {
     private Gson gson;
     private Context context;
 
-    private final String API_ENDPOINT = "https://adriankeenan.co.uk/uobtimetable/api/index.php/courses";
+    private final String API_ENDPOINT = "https://uob-timetable-api.adriankeenan.co.uk/courses";
 
     public Service(Context appContext){
 
