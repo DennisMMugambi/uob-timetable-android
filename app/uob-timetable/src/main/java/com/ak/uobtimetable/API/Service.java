@@ -53,6 +53,7 @@ public class Service {
         return new Request.Builder().url(url)
             .addHeader("User-Agent", userAgent)
             .addHeader("App-Version", Integer.valueOf(buildVersion).toString())
+            .addHeader("API-Version", "2")
             .build();
     }
 

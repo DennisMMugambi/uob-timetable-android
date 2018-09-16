@@ -40,7 +40,6 @@ public class Models {
     }
 
     public class Session {
-        public String moduleCode;
         public String moduleName;
         public int day;
         public String start;
@@ -50,7 +49,6 @@ public class Models {
         public String type;
         public List<String> rooms;
         public List<String> roomsShort;
-        public List<String> staff;
         public String hash;
         public boolean isValid;
     }
@@ -86,7 +84,7 @@ public class Models {
             if (isValid == false)
                 return MODULE_UNAVAILABLE + " - " + type;
 
-            return moduleName + " (" + moduleCode + ") " + type;
+            return moduleName + " - " + type;
         }
 
         public String getSubtitle(){
@@ -119,11 +117,6 @@ public class Models {
                 sb.append("No rooms listed\n");
             else
                 sb.append("In " + StringUtils.join(roomList, ", ") + "\n");
-
-            if (staff.size() == 0)
-                sb.append("No staff listed");
-            else
-                sb.append("With " + StringUtils.join(staff, ", "));
 
             return sb.toString();
         }
