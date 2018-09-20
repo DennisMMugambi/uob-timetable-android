@@ -17,32 +17,13 @@ staff members
 
 ## Builds
 
-See releases tab
-
-## Changelog
-
-- 2.4 (15)
-	- Added adaptive icons for Android 8.0
-	- Fixed crash in course selector
-	- Improved error handling
-- 2.3 (14)
-	- Cached sessions now loaded if download fails
-	- Improved empty session list UI
-- 2.2 (13)
-	- Improved settings UI
-	- Fixed Term Date app shortcut bugs
-- 2.1 (12)
-	- Fixed crash when session list fails to download
-	- Added progress bar for term dates
-- 2.0 (11)
-	- Complete rewrite with Material Design
-	- Landscape support
-- 1.0
+See [releases](releases) tab for APKs and changelogs
 
 ## Dev Notes
 
 - Minimum API 15 (4.0.3)
 - Enable debug view in settings by tapping the bottom of the view 7 times
+- To log errors to Bugsnag, add Bugsnag key to `UOB_TIMETABLE_BUGSNAG` env var before building
 
 ## License
 
