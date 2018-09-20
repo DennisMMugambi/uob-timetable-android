@@ -110,8 +110,11 @@ public class CourseListActivity extends AppCompatActivity {
                                 // Save course
                                 SettingsManager.getInstance(CourseListActivity.this).setCourse(selectedCourse);
 
+                                // Launch main activity and remove this from stack. Force MainActivity to refresh
+                                // sessions as the course may have changed.
                                 Intent i = new Intent(CourseListActivity.this, MainActivity.class)
-                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                    .putExtra(MainActivity.Args.forceRefreshSessions.name(), true);
                                 startActivity(i);
                             }
                         }

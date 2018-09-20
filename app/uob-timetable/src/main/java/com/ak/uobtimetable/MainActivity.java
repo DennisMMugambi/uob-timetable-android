@@ -61,7 +61,8 @@ public class MainActivity extends AppCompatActivity
     public enum Args {
         shouldRestore,
         fragment,
-        currentIndex
+        currentIndex,
+        forceRefreshSessions,
     }
 
     @Override
@@ -524,9 +525,14 @@ public class MainActivity extends AppCompatActivity
 
         AndroidUtilities.NetworkType network =  AndroidUtilities.getNetwork(this);
 
-        if (network == AndroidUtilities.NetworkType.Cellular && settings.getRefreshCellular())
+        // Check if we received a forceRefreshSessions message in the intent (eg changed course)
+        boolean forceSessionRefresh = getIntent().getBooleanExtra(Args.forceRefreshSessions.name(), false);
+
+        if (forceSessionRefresh && network != AndroidUtilities.NetworkType.None)
             return true;
-        else if (network == AndroidUtilities.NetworkType.Infrastructure && settings.getRefreshWiFi())
+        else if (settings.getRefreshCellular() && network == AndroidUtilities.NetworkType.Cellular)
+            return true;
+        else if (settings.getRefreshWiFi() && network == AndroidUtilities.NetworkType.Infrastructure)
             return true;
 
         return false;
