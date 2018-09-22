@@ -1,10 +1,15 @@
 package com.ak.uobtimetable.Utilities.Logging;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.bugsnag.android.Bugsnag;
+import com.bugsnag.android.Callback;
 import com.bugsnag.android.Configuration;
+import com.bugsnag.android.Report;
 import com.bugsnag.android.Severity;
+
+import java.util.Map;
 
 public class BugsnagLogger implements Loggable {
 
@@ -25,18 +30,32 @@ public class BugsnagLogger implements Loggable {
 
     @Override
     public BugsnagLogger info(String tag, String message) {
+        Bugsnag.leaveBreadcrumb(tag + " - " + message);
         return this;
     }
 
     @Override
-    public BugsnagLogger warn(String tag, String message) {
-        Bugsnag.notify(new Exception(message), Severity.WARNING);
+    public BugsnagLogger warn(final String tag, String message, final Map<String, String> metadata) {
+        Exception e = new Exception(message);
+        notify(Severity.WARNING, tag, e, metadata);
         return this;
     }
 
     @Override
-    public BugsnagLogger error(String tag, Exception exception) {
-        Bugsnag.notify(exception, Severity.ERROR);
+    public BugsnagLogger error(final String tag, Exception exception, final Map<String, String> metadata) {
+        notify(Severity.ERROR, tag, exception, metadata);
         return this;
+    }
+
+    private void notify(final Severity severity, final String tag, Exception exception, final Map<String, String> metadata){
+        Bugsnag.notify(exception, new Callback() {
+            @Override
+            public void beforeNotify(@NonNull Report report) {
+                report.getError().setSeverity(severity);
+                report.getError().addToTab("Error", "tag", tag);
+                for (Map.Entry<String, String> metadataEntry : metadata.entrySet())
+                    report.getError().getMetaData().addToTab("Custom", metadataEntry.getKey(), metadataEntry.getValue());
+            }
+        });
     }
 }

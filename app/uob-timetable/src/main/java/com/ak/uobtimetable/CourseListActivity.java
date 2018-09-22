@@ -14,10 +14,12 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.ak.uobtimetable.API.Service;
 import com.ak.uobtimetable.API.Models;
+import com.ak.uobtimetable.Exceptions.HTTPException;
 import com.ak.uobtimetable.ListAdapters.CourseListAdapter;
 import com.ak.uobtimetable.Utilities.AndroidUtilities;
 import com.ak.uobtimetable.Utilities.Logging.Logger;
@@ -186,7 +188,7 @@ public class CourseListActivity extends AppCompatActivity {
                 updateCourseList(selectedDepartmentIndex);
             } catch (Exception e) {
                 e = new Exception("Failed to select department at index", e);
-                Logger.getInstance().error("CourseListActivity", e);
+                Logger.getInstance().error("CourseListActivity", e, null);
             }
         }
     }
@@ -208,14 +210,32 @@ public class CourseListActivity extends AppCompatActivity {
                 Service service = new Service(getApplicationContext());
                 response = service.getCourses();
             } catch (Exception e) {
-                // Wrap JSON parse exception
-                if (e instanceof JsonParseException) {
-                    e = new Exception("Failed to parse JSON", e);
-                }
-
                 fetchException = e;
-                Logger.getInstance().error("Course download", e);
+            } finally {
+                // Log Exception or response error here
+                if (fetchException != null || response.error){
+
+                    // Get previous exception or make from response
+                    Exception cause = fetchException;
+                    if (cause == null)
+                        cause = new Exception(response.errorStr);
+
+                    Exception e = new Exception("Failed to download courses.", cause);
+
+                    HashMap<String, String> metadata = new HashMap<>();
+
+                    // Add HTTP exception data
+                    if (cause instanceof HTTPException)
+                        metadata.putAll(((HTTPException) cause).toMap());
+
+                    // Add response error
+                    if (response != null)
+                        metadata.put("error", response.errorStr);
+
+                    Logger.getInstance().error("Course download", e, metadata);
+                }
             }
+
             return response;
         }
 
@@ -238,7 +258,6 @@ public class CourseListActivity extends AppCompatActivity {
                 d.show();
                 return;
             } else if (response.error) {
-                Logger.getInstance().error("Course download", "Server returning error msg: " + response.errorStr);
                 AlertDialog d = new AlertDialog.Builder(activity)
                     .setPositiveButton(R.string.dialog_dismiss, null)
                     .setTitle(R.string.warning_course_download_error)

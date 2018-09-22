@@ -1,6 +1,7 @@
 package com.ak.uobtimetable.Utilities.Logging;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Extendable logger
@@ -59,7 +60,15 @@ public class Logger implements Loggable {
     public Logger warn(String tag, String message){
 
         for (Loggable logger : loggers.values())
-            logger.warn(tag, message);
+            logger.warn(tag, message, null);
+
+        return this;
+    }
+
+    public Logger warn(String tag, String message, Map<String, String> metadata){
+
+        for (Loggable logger : loggers.values())
+            logger.warn(tag, message, metadata);
 
         return this;
     }
@@ -67,7 +76,7 @@ public class Logger implements Loggable {
     public Logger error(String tag, String message){
 
         for (Loggable logger : loggers.values())
-            logger.error(tag, new Exception(message));
+            logger.error(tag, new Exception(message), null);
 
         return this;
     }
@@ -75,7 +84,15 @@ public class Logger implements Loggable {
     public Logger error(String tag, Exception exception){
 
         for (Loggable logger : loggers.values())
-            logger.error(tag, exception);
+            logger.error(tag, exception, null);
+
+        return this;
+    }
+
+    public Logger error(String tag, Exception exception, Map<String, String> metadata){
+
+        for (Loggable logger : loggers.values())
+            logger.error(tag, exception, metadata);
 
         return this;
     }

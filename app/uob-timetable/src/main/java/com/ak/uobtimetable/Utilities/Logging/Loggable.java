@@ -1,5 +1,7 @@
 package com.ak.uobtimetable.Utilities.Logging;
 
+import java.util.Map;
+
 public interface Loggable {
 
     Loggable verbose(String tag, String message);
@@ -8,7 +10,7 @@ public interface Loggable {
 
     Loggable info(String tag, String message);
 
-    Loggable warn(String tag, String message);
+    Loggable warn(String tag, String message, Map<String, String> metadata);
 
-    Loggable error(String tag, Exception exception);
+    Loggable error(String tag, Exception exception, Map<String, String> metadata);
 }

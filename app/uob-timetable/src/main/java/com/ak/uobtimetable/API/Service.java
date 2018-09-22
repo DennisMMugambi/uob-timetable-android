@@ -1,8 +1,8 @@
 package com.ak.uobtimetable.API;
 
 import android.content.Context;
-import android.util.Log;
 
+import com.ak.uobtimetable.Exceptions.HTTPException;
 import com.ak.uobtimetable.Utilities.AndroidUtilities;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -11,6 +11,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
 import java.util.List;
 
 import com.ak.uobtimetable.Utilities.Logging.Logger;
@@ -57,37 +58,37 @@ public class Service {
             .build();
     }
 
-    private String getString(String url) throws IOException {
+    private String getString(String url) throws HTTPException {
 
         Logger.getInstance().debug("HTTP", "Request for: " + url);
+
+        // Body string can only be read once, so store a copy
+        String bodyString = null;
+
+        int statusCode = -1;
 
         try {
             Request request = makeRequest(url);
             Response response = okHttpClient.newCall(request).execute();
 
-            // Body string can only be read once, so store a copy
-            String bodyString = response.body().string();
+            bodyString = response.body().string();
 
             // OkHTTP will remove Content-Encoding for a compressed response, as it is no longer
             // relevant to the output data
             // https://github.com/square/okhttp/wiki/Calls#rewriting-responses
             boolean responseCompressed = response.header("Content-Encoding") == null;
             if (responseCompressed == false)
-                Logger.getInstance().warn("HTTP", "Response was not compressed");
+                Logger.getInstance().warn("HTTP", "Response was not compressed.");
             else
-                Logger.getInstance().info("HTTP", "Response was compressed");
-
-            // Log other request details
-            Logger.getInstance()
-                .info("HTTP", "Response body size kb: " + String.format("%.02f", bodyString.length() / 1024.0))
-                .info("HTTP", "Response code: " + response.code());
+                Logger.getInstance().info("HTTP", "Response was compressed.");
 
             return bodyString;
-
         } catch (SocketTimeoutException e) {
-            throw new IOException("Communication with server timed out. Please check your internet connection.", e);
-        } catch (Exception e){
-            throw new IOException("Failed to download from server.", e);
+            String message = "Communication with server timed out. Please check your internet connection.";
+            throw new HTTPException(message, url, statusCode, bodyString, e);
+        } catch (Exception e) {
+            String message = "Failed to download from server.";
+            throw new HTTPException(message, url, statusCode, bodyString, e);
         }
     }
 
@@ -99,10 +100,13 @@ public class Service {
     public Models.CourseResponse getCourses() throws Exception {
 
         String json = getString(this.API_ENDPOINT);
-        Models.CourseResponse response =  gson.fromJson(json, new TypeToken<Models.CourseResponse>() {}.getType());
+        Models.CourseResponse response = null;
 
-        if (response == null)
-            throw new Exception("Gson returned null: " + json);
+        try {
+            response = gson.fromJson(json, new TypeToken<Models.CourseResponse>() {}.getType());
+        } catch (Exception e) {
+            throw new Exception("Failed to deserialize JSON.", e);
+        }
 
         Logger.getInstance().info("Service", "getCourses response time: " + String.format("%.02f", response.responseTime));
 
@@ -118,10 +122,13 @@ public class Service {
     public Models.SessionResponse getSessions(String url) throws Exception {
 
         String json = getString(url);
-        Models.SessionResponse response = gson.fromJson(json, new TypeToken<Models.SessionResponse>() {}.getType());
+        Models.SessionResponse response = null;
 
-        if (response == null)
-            throw new Exception("Gson returned null: " + json);
+        try {
+            response = gson.fromJson(json, new TypeToken<Models.SessionResponse>() {}.getType());
+        } catch (Exception e) {
+            throw new Exception("Failed to deserialize JSON.", e);
+        }
 
         Logger.getInstance().info("Service", "getSessions response time: " + String.format("%.02f", response.responseTime));
 
@@ -136,13 +143,20 @@ public class Service {
 
         // Log invalid
         for (Models.DisplaySession session : response.sessions) {
-            if (session.isValid == false)
-                Logger.getInstance().warn("Service", "Invalid session: " + session.getLongTitle());
+            if (session.isValid == false) {
+                HashMap<String, String> metadata = new HashMap<>();
+                metadata.put("session_hash", session.hash);
+                metadata.put("url", url);
+                Logger.getInstance().warn("Service", "Invalid session", metadata);
+            }
         }
 
         // Log no sessions
-        if (response.sessions.size() == 0)
-            Logger.getInstance().warn("Service", "0 sessions in response for URL: " + url);
+        if (response.sessions.size() == 0) {
+            HashMap<String, String> metadata = new HashMap<>();
+            metadata.put("url", url);
+            Logger.getInstance().warn("Service", "0 sessions in response", metadata);
+        }
 
         return response;
     }

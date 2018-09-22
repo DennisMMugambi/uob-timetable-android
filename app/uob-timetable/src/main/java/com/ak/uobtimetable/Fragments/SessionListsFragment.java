@@ -19,11 +19,13 @@ import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import com.ak.uobtimetable.API.Service;
 import com.ak.uobtimetable.API.Models;
 import com.ak.uobtimetable.CourseListActivity;
+import com.ak.uobtimetable.Exceptions.HTTPException;
 import com.ak.uobtimetable.MainActivity;
 import com.ak.uobtimetable.R;
 import com.ak.uobtimetable.Utilities.Logging.Logger;
@@ -478,14 +480,41 @@ public class SessionListsFragment extends Fragment {
                 Service service = new Service(getContext());
                 response = service.getSessions(course.sessionUrl);
             } catch (Exception e) {
-                // Wrap JSON parse exception
-                if (e instanceof JsonParseException) {
-                    e = new Exception("Failed to parse JSON", e);
-                }
-
                 fetchException = e;
-                Logger.getInstance().error("Session download", e);
+            } finally {
+                // Log Exception or response error here
+                if (fetchException != null || response.error){
+
+                    // Get previous exception or make from response
+                    Exception cause = fetchException;
+                    if (cause == null)
+                        cause = new Exception(response.errorStr);
+
+                    Exception e = new Exception("Failed to download sessions.", cause);
+
+                    HashMap<String, String> metadata = new HashMap<>();
+
+                    // Add HTTP exception data
+                    if (cause instanceof HTTPException)
+                        metadata.putAll(((HTTPException) cause).toMap());
+
+                    // Add response error
+                    if (response != null)
+                        metadata.put("error", response.errorStr);
+
+                    // Add session info
+                    metadata.put("session_url", course.sessionUrl);
+                    metadata.put("course_id", course.id);
+                    metadata.put("course_name", course.name);
+                    metadata.put("course_department_id", course.department.id);
+                    metadata.put("course_department_name", course.department.name);
+                    metadata.put("course_level", course.level);
+                    metadata.put("user_last_updated", settings.getSessionsUpdatedTimeAgo());
+
+                    Logger.getInstance().error("Session download", e, metadata);
+                }
             }
+
             return response;
         }
 
@@ -527,12 +556,6 @@ public class SessionListsFragment extends Fragment {
                             fragment.activity.showSessionSnackbar(sessions, settings.getShowHiddenSessions(), true);
                         }
                     };
-                }
-
-                // Log error from webservice
-                if (response != null && response.error) {
-                    Exception e = new Exception("Server returning error msg: " + response.errorStr);
-                    Logger.getInstance().error("Session download", e);
                 }
 
                 // Error message string
