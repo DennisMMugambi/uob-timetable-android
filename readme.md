@@ -9,8 +9,7 @@ course.
 
 ## Features
 
-- Detailed information for each session including the unit, time, rooms and
-staff members
+- Detailed information for each session including the unit, time and rooms
 - Session hiding
 - Term dates
 - Offline support
