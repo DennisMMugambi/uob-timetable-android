@@ -16,6 +16,7 @@ public class Models {
         public double responseTime;
         public boolean error;
         public String errorStr;
+        public String errorId;
     }
 
     public class Department {

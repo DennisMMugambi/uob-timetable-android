@@ -499,8 +499,10 @@ public class SessionListsFragment extends Fragment {
                         metadata.putAll(((HTTPException) cause).toMap());
 
                     // Add response error
-                    if (response != null)
+                    if (response != null) {
                         metadata.put("error", response.errorStr);
+                        metadata.put("error_id", response.errorId);
+                    }
 
                     // Add session info
                     metadata.put("session_url", course.sessionUrl);
@@ -576,8 +578,7 @@ public class SessionListsFragment extends Fragment {
                 boolean isCourseInvalidError =
                     response != null &&
                     response.error &&
-                    response.errorStr != null &&
-                    response.errorStr.toLowerCase().contains("invalid course");
+                    Service.ERROR_COURSE_INVALID.equals(response.errorId);
 
                 if (!isCourseInvalidError){
                     AlertDialog d = new AlertDialog.Builder(fragment.getActivity())

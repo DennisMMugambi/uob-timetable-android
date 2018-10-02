@@ -31,6 +31,8 @@ public class Service {
 
     private final String API_ENDPOINT = "https://uob-timetable-api.adriankeenan.co.uk/courses";
 
+    public static final String ERROR_COURSE_INVALID = "course_invalid";
+
     public Service(Context appContext){
 
         context = appContext;

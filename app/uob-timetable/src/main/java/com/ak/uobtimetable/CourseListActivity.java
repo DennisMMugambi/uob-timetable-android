@@ -229,8 +229,10 @@ public class CourseListActivity extends AppCompatActivity {
                         metadata.putAll(((HTTPException) cause).toMap());
 
                     // Add response error
-                    if (response != null)
+                    if (response != null) {
                         metadata.put("error", response.errorStr);
+                        metadata.put("error_id", response.errorId);
+                    }
 
                     Logger.getInstance().error("Course download", e, metadata);
                 }
