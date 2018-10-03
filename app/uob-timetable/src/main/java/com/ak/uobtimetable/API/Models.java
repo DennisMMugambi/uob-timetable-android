@@ -25,6 +25,10 @@ public class Models {
         public int courseCount;
     }
 
+    public class Level {
+        public String name;
+    }
+
     public class Course {
         public String id;
         public String name;
@@ -38,6 +42,7 @@ public class Models {
     public class CourseResponse extends Response {
         public List<Course> courses;
         public List<Department> departments;
+        public List<Level> levels;
     }
 
     public class Session {

@@ -592,9 +592,10 @@ public class SessionListsFragment extends Fragment {
                         .setPositiveButton(R.string.dialog_change_course, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                Intent intent = new Intent(fragment.getActivity(), CourseListActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                intent.putExtra(CourseListActivity.Args.departmentId.name(), course.department.id);
+                                Intent intent = new Intent(fragment.getActivity(), CourseListActivity.class)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    .putExtra(CourseListActivity.Args.departmentId.name(), course.department.id)
+                                    .putExtra(CourseListActivity.Args.levelName.name(), course.level);
                                 startActivity(intent);
                             }
                         })
