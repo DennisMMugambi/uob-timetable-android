@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="10dp"
-        android:text="UoB Timetable"
+        android:text="UoB timetable"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
