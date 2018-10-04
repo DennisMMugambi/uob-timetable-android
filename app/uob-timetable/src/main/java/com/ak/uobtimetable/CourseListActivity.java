@@ -47,9 +47,7 @@ public class CourseListActivity extends AppCompatActivity {
 
     public enum Args {
         departmentIndex,
-        departmentId,
         levelIndex,
-        levelName,
     }
 
     @Override
@@ -296,22 +294,22 @@ public class CourseListActivity extends AppCompatActivity {
             departments = response.departments;
             levels = response.levels;
 
-            // On launch we may have been passed a department ID and level name, if so
-            // fetch the indexes for these entries ready for populating the spinners.
-            if (selectedDepartmentIndex == -1 && getIntent().hasExtra(Args.departmentId.name())) {
+            // If we don't have selected department and level from previous saved state,
+            // set the department and level for current course
+            Models.Course course = new SettingsManager(activity).getCourse();
+
+            if (selectedDepartmentIndex == -1 && course != null) {
                 selectedDepartmentIndex = 0;
-                String initialDepartmentId = getIntent().getStringExtra(Args.departmentId.name());
                 for (int i = 0; i < departments.size(); i++){
-                    if (departments.get(i).id.equals(initialDepartmentId))
+                    if (departments.get(i).id.equals(course.department.id))
                         selectedDepartmentIndex = i;
                 }
             }
 
-            if (selectedLevelIndex == -1 && getIntent().hasExtra(Args.levelName.name())) {
+            if (selectedLevelIndex == -1 && course != null) {
                 selectedLevelIndex = 0;
-                String initialLevelName = getIntent().getStringExtra(Args.levelName.name());
                 for (int i = 0; i < levels.size(); i++){
-                    if (levels.get(i).name.equals(initialLevelName))
+                    if (levels.get(i).name.equals(course.level))
                         selectedLevelIndex = i;
                 }
             }
