@@ -10,12 +10,12 @@ def gitRevParse = { arg ->
 }
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.2'
     defaultConfig {
         applicationId "com.ak.uobtimetable"
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 18
         versionName "2.4.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -41,19 +41,19 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:26.0.1'
-    compile 'com.android.support:design:26.0.1'
-    compile 'com.squareup.okhttp3:okhttp:3.7.0'
-    compile 'com.google.code.gson:gson:2.8.0'
-    compile 'com.bugsnag:bugsnag-android:4.0.0'
-    compile 'org.apache.commons:commons-lang3:3.4'
-    compile 'com.h6ah4i.android.tablayouthelper:tablayouthelper:0.7.0'
-    compile 'com.android.support:support-v4:26.0.1'
-    compile 'com.android.support:recyclerview-v7:26.0.1'
-    compile 'com.android.support:support-vector-drawable:26.0.1'
-    testCompile 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:26.0.1'
+    implementation 'com.android.support:design:26.0.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.7.0'
+    implementation 'com.google.code.gson:gson:2.8.0'
+    implementation 'com.bugsnag:bugsnag-android:4.0.0'
+    implementation 'org.apache.commons:commons-lang3:3.4'
+    implementation 'com.h6ah4i.android.tablayouthelper:tablayouthelper:0.7.0'
+    implementation 'com.android.support:support-v4:26.0.1'
+    implementation 'com.android.support:recyclerview-v7:26.0.1'
+    implementation 'com.android.support:support-vector-drawable:26.0.1'
+    testImplementation 'junit:junit:4.12'
 }
