@@ -607,7 +607,7 @@ public class SessionListsFragment extends Fragment {
                 return;
             }
 
-            SettingsManager settings  = SettingsManager.getInstance(getContext());
+            SettingsManager settings = SettingsManager.getInstance(getContext());
 
             // Restore the hidden value of the sessions from the previous saved list
             List<Models.DisplaySession> sessions = response.sessions;
@@ -618,6 +618,7 @@ public class SessionListsFragment extends Fragment {
 
             // Save to settings
             settings.setSessions(sessions, true);
+            settings.setTimetableUrl(response.timetableUrl);
 
             // Set sessions in child fragments
             fragment.setSessions(course, sessions, -1);

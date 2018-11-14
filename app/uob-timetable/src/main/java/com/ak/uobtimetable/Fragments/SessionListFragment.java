@@ -1,6 +1,9 @@
 package com.ak.uobtimetable.Fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -15,7 +18,9 @@ import java.util.List;
 
 import com.ak.uobtimetable.API.Models;
 import com.ak.uobtimetable.ListAdapters.SessionListAdapter;
+import com.ak.uobtimetable.MainActivity;
 import com.ak.uobtimetable.R;
+import com.ak.uobtimetable.Utilities.AndroidUtilities;
 import com.ak.uobtimetable.Utilities.Logging.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
 
@@ -53,6 +58,7 @@ public class SessionListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the preferences for this fragment
         View view =  inflater.inflate(R.layout.fragment_session_list, container, false);
 
@@ -76,14 +82,36 @@ public class SessionListFragment extends Fragment {
                 // Get selected session
                 Models.DisplaySession selectedSession = todaysSessions.get(position);
 
-                // Display alert
-                SettingsManager settings = SettingsManager.getInstance(getActivity());
-                new AlertDialog.Builder(getActivity())
+                // Build alert dialog. If session is invalid, add an extra button to open the
+                // timetable website.
+                final SettingsManager settings = SettingsManager.getInstance(getActivity());
+                boolean sessionIsValid = selectedSession.isValid;
+
+                String description = selectedSession.getDescription(settings.getLongRoomNames());
+                if (sessionIsValid == false)
+                    description += "\n" + getString(R.string.text_session_invalid);
+
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity())
                     .setTitle(selectedSession.getLongTitle())
-                    .setMessage(selectedSession.getDescription(settings.getLongRoomNames()))
-                    .setPositiveButton(android.R.string.ok, null)
-                    .create()
-                    .show();
+                    .setMessage(description)
+                    .setPositiveButton(R.string.dialog_dismiss, null);
+
+                if (sessionIsValid == false && settings.hasTimetableUrl()){
+                    dialogBuilder.setNeutralButton(R.string.dialog_open_timetable_site, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (AndroidUtilities.hasNetwork(getContext())) {
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(settings.getTimetableUrl()));
+                                startActivity(browserIntent);
+                            } else {
+                                ((MainActivity)getActivity()).showNoInternetConnectionSnackbar();
+                            }
+                        }
+                    });
+                }
+
+                // Show dialog
+                dialogBuilder.create().show();
             }
         });
 

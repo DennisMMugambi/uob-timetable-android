@@ -40,6 +40,7 @@ public class SettingsManager {
         savedSessions,
         savedSessionsTime,
         savedCourse,
+        timetableUrl,
         longRoomNames,
         showHiddenSessions,
         launchCount,
@@ -258,6 +259,21 @@ public class SettingsManager {
 
         if (updateTime)
             setDate(Settings.savedSessionsTime, new Date());
+    }
+
+    public void setTimetableUrl(String url){
+
+        setString(Settings.timetableUrl, url);
+    }
+
+    public boolean hasTimetableUrl(){
+
+        return getTimetableUrl() != null;
+    }
+
+    public String getTimetableUrl(){
+
+        return getString(Settings.timetableUrl, null);
     }
 
     public String getSessionsUpdatedTimeAgo(){

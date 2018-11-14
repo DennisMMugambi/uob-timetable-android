@@ -60,6 +60,7 @@ public class Models {
     }
 
     public class SessionResponse extends Response {
+        public String timetableUrl;
         public List<DisplaySession> sessions;
     }
 

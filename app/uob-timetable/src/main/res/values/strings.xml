@@ -13,6 +13,7 @@
     <string name="dialog_negative">No</string>
     <string name="dialog_close">Close</string>
     <string name="dialog_change_course">Reselect course</string>
+    <string name="dialog_open_timetable_site">Open timetable site</string>
 
     <string name="text_disclaimer">This is a third party application which is in no way affiliated with the University of Bedfordshire.</string>
     <string name="text_tutorial_disclaimer">This data is best used as a guide as it is not obtained directly from the university and may not be 100% accurate.</string>
@@ -21,6 +22,7 @@
     <string name="text_no_sessions">No sessions to display.</string>
     <string name="text_loading_cached_sessions">Loading cached sessions instead.</string>
     <string name="text_course_invalid">Your selected course is no longer accessible. Please reselect your course from the list.</string>
+    <string name="text_session_invalid">Some details for this session are missing due to an issue with the university system. Check the timetable website for full session details.</string>
 
     <string name="text_welcome_standard">The next screen will ask you to select a course.</string>
     <string name="text_welcome_migrate">We\'ve updated!\n\nYou\'ll need to re-select your course.</string>

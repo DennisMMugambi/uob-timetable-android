@@ -515,7 +515,7 @@ public class MainActivity extends AppCompatActivity
         Snackbar.make(clCoordinatorLayout, sb.toString(), Snackbar.LENGTH_LONG).show();
     }
 
-    private void showNoInternetConnectionSnackbar(){
+    public void showNoInternetConnectionSnackbar(){
 
         CharSequence message = getText(R.string.net_required);
         Snackbar.make(clCoordinatorLayout, message, Snackbar.LENGTH_LONG).show();
