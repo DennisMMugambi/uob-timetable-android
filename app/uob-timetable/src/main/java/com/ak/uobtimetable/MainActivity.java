@@ -541,12 +541,6 @@ public class MainActivity extends AppCompatActivity
     private void showAbout(){
 
         String version = AndroidUtilities.buildVersionName(this);
-
-        String contactUri = Uri.parse("https://adriankeenan.co.uk/contact/")
-            .buildUpon()
-            .appendQueryParameter("subject", "UoB Timetable for Android")
-            .build()
-            .toString();
         String title = String.format("About (version %s)", version);
         String body = String
             .format("Developed by <a href=\"https://adriankeenan.co.uk\">Adrian Keenan</a>. " +
@@ -558,8 +552,10 @@ public class MainActivity extends AppCompatActivity
                 "<a href=\"https://github.com/h6ah4i/android-tablayouthelper\">h6ah4i/android-tablayouthelper</a> (Apache 2.0)<br>" +
                 "<a href=\"https://github.com/bugsnag/bugsnag-android\">bugsnag/bugsnag-android</a> (MIT)<br>" +
                 "<br>" +
-                getString(R.string.text_disclaimer),
-                contactUri);
+                getString(R.string.text_disclaimer) +
+                "<br><br>" +
+                "To find out about analytics data captured by this application, please read the " +
+                "<a href=\"https://adriankeenan.co.uk/uobtimetable/privacypolicy\">Privacy Policy</a>.");
 
         AlertDialog d = new AlertDialog.Builder(this)
             .setPositiveButton(R.string.dialog_dismiss, null)
