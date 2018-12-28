@@ -1,12 +1,13 @@
 <resources>
     <string name="app_name">UoB Timetable</string>
+    <string name="app_name_launcher">Timetable</string>
 
     <string name="activity_course_list_label">Courses</string>
+    <string name="activity_settings_label">Settings</string>
+    <string name="activity_developer_label">Developer</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="title_activity_settings">Settings</string>
 
     <string name="dialog_dismiss">Okay</string>
     <string name="dialog_positive">Yes</string>
@@ -40,18 +41,28 @@
 
     <string name="shortcut_termdates">Term dates</string>
 
+    <string name="setting_notify_session_reminders_enabled">Show session notifications</string>
+    <string name="setting_notify_session_reminders_minutes">Reminder interval</string>
     <string name="setting_refresh_wifi">Refresh on WiFi</string>
     <string name="setting_refresh_cellular">Refresh on cellular data</string>
     <string name="setting_long_room_names">Display full room names</string>
-    
+
+    <string name="preference_category_notifications">Notifications</string>
     <string name="preference_category_display">Display</string>
     <string name="preference_category_sync">Sync</string>
-    
+
+    <string name="pref_notify_session_reminders_enabled_on">Show a notification before sessions start (excluding hidden sessions)</string>
+    <string name="pref_notify_session_reminders_enabled_off">Don\'t show a notification before sessions start</string>
+    <string name="pref_notify_session_reminders_minutes">Show notification %s session starts</string>
+    <string name="pref_long_room_names_on">Display full room names (eg "G101 - Campus Centre Lecture Theatre")</string>
+    <string name="pref_long_room_names_off">Display room codes only (eg "G101")</string>
     <string name="pref_refresh_wifi_on">Refresh the timetable when launching the app on WiFi</string>
     <string name="pref_refresh_wifi_off">Don\'t refresh the timetable when launching the app on WiFi</string>
     <string name="pref_refresh_cellular_on">Refresh the timetable when launching the app on 2G/3G/4G</string>
     <string name="pref_refresh_cellular_off">Don\'t refresh the timetable when launching the app on 2G/3G/4G</string>
-    <string name="pref_long_room_names_on">Display full room names (eg "G101 - Campus Centre Lecture Theatre")</string>
-    <string name="pref_long_room_names_off">Display room codes only (eg "G101")</string>
+
+    <string name="notify_channel_session_reminders_name">Session reminders</string>
+    <string name="notify_channel_session_reminders_description">Enable reminder notifications before sessions start (excluding hidden sessions)</string>
+    <string name="title_activity_dev">DevActivity</string>
 
 </resources>

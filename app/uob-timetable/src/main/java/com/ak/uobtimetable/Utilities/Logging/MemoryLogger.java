@@ -62,7 +62,7 @@ public class MemoryLogger implements Loggable {
                 metaText += this.serialiseMetadata(metadata)
                     .replace("\n", "<br/>")
                     .replace(" ", "&nbsp;");
-                text +=  "<font face=\"monospace\">" + metaText + "</font>";;
+                text +=  "<font face=\"monospace\">" + metaText + "</font>";
             }
 
             return "<font color=\"" + colour + "\">" + text + "</font>";
@@ -127,6 +127,11 @@ public class MemoryLogger implements Loggable {
     public List<Entry> getEntries(){
 
         return new ArrayList<>(entries);
+    }
+
+    public void clearEntries(){
+
+        entries.clear();
     }
 
     public String toString(){

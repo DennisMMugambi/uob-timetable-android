@@ -29,8 +29,8 @@ import com.ak.uobtimetable.Exceptions.HTTPException;
 import com.ak.uobtimetable.MainActivity;
 import com.ak.uobtimetable.R;
 import com.ak.uobtimetable.Utilities.Logging.Logger;
+import com.ak.uobtimetable.Notifications.SessionReminderNotifier;
 import com.ak.uobtimetable.Utilities.SettingsManager;
-import com.google.gson.JsonParseException;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 
 /**
@@ -202,8 +202,8 @@ public class SessionListsFragment extends Fragment {
 
         // Initialise the helper which switches the tab mode between
         // scrollable and centre gravity
-        TabLayoutHelper mTabLayoutHelper = new TabLayoutHelper(tabLayout, viewPager);
-        mTabLayoutHelper.setAutoAdjustTabModeEnabled(true);
+        TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(tabLayout, viewPager);
+        tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
 
         // Switch to the current day or predefined index
         int index = initialIndex > -1 ? initialIndex : getCurrentTimetableDay();
@@ -310,10 +310,19 @@ public class SessionListsFragment extends Fragment {
 
     private boolean setEditMode(boolean editMode){
 
+        // Toggle internal state
         this.editMode = editMode;
 
         Logger.getInstance().debug("SessionListsFragment", "Set edit mode: " + editMode);
 
+        // If not editing, update our alarms, as we may have sessions where isVisible as changed
+        // which changes whether or not we need to show a notification for that session
+        if (editMode == false && settings.getNotificationSessionRemindersEnabled()) {
+            SessionReminderNotifier notifier = new SessionReminderNotifier(getContext());
+            notifier.setAlarms(settings.getSessions(), settings.getNotificationSessionRemindersMinutes());
+        }
+
+        // Log number of hidden sessions
         int hiddenSessions = 0;
         for (Models.DisplaySession s : sessions) {
             if (s.visible == false)
@@ -321,6 +330,7 @@ public class SessionListsFragment extends Fragment {
         }
         Logger.getInstance().debug("SessionListsFragment", "Hidden session count: " + hiddenSessions);
 
+        // Update sub-fragments
         refreshLists();
 
         return editMode;
@@ -619,6 +629,12 @@ public class SessionListsFragment extends Fragment {
             // Save to settings
             settings.setSessions(sessions, true);
             settings.setTimetableUrl(response.timetableUrl);
+
+            // Update notification alarms
+            if (settings.getNotificationSessionRemindersEnabled()){
+                SessionReminderNotifier notifier = new SessionReminderNotifier(getContext());
+                notifier.setAlarms(sessions, settings.getNotificationSessionRemindersMinutes());
+            }
 
             // Set sessions in child fragments
             fragment.setSessions(course, sessions, -1);

@@ -53,8 +53,10 @@ public class BugsnagLogger implements Loggable {
             public void beforeNotify(@NonNull Report report) {
                 report.getError().setSeverity(severity);
                 report.getError().addToTab("Error", "tag", tag);
-                for (Map.Entry<String, String> metadataEntry : metadata.entrySet())
-                    report.getError().getMetaData().addToTab("Custom", metadataEntry.getKey(), metadataEntry.getValue());
+                if (metadata != null) {
+                    for (Map.Entry<String, String> metadataEntry : metadata.entrySet())
+                        report.getError().getMetaData().addToTab("Custom", metadataEntry.getKey(), metadataEntry.getValue());
+                }
             }
         });
     }

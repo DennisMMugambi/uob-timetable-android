@@ -11,6 +11,7 @@ course.
 
 - Detailed information for each session including the unit, time and rooms
 - Session hiding
+- Session reminder notifications
 - Term dates
 - Offline support
 
@@ -21,7 +22,7 @@ See [releases](releases) tab for APKs and changelogs
 ## Dev Notes
 
 - Minimum API 15 (4.0.3)
-- Enable debug view in settings by tapping the bottom of the view 7 times
+- Enable debug view by tapping the app bar in MainAcitivity 7 times
 - To log errors to Bugsnag, add Bugsnag key to `UOB_TIMETABLE_BUGSNAG` env var before building
 
 ## License

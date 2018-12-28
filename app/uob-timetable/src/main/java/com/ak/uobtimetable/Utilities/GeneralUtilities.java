@@ -1,8 +1,14 @@
 package com.ak.uobtimetable.Utilities;
 
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Date;
+
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 
 /**
  * General purpose Java utility methods.
@@ -16,9 +22,9 @@ public class GeneralUtilities {
      */
     public static String getDateTimeAgo(Date date) {
 
-        // This is really rough, but whatever
-        int msPerDay = 24 * 60 * 60 * 1000;
-        int days = Math.round((new Date().getTime() - date.getTime()) / msPerDay);
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDate localDate = Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalDate();
+        long days = DAYS.between(LocalDate.now(zone), localDate);
 
         if (days == 0)
             return "today";
@@ -68,7 +74,7 @@ public class GeneralUtilities {
         stringBuilder.append(throwable.toString());
 
         while (throwable.getCause() != null) {
-            stringBuilder.append("\n>>> " + throwable.getCause().toString());
+            stringBuilder.append("\n>>> ").append(throwable.getCause().toString());
             throwable = throwable.getCause();
         }
 

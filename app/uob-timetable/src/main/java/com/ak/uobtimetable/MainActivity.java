@@ -7,35 +7,36 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.text.method.LinkMovementMethod;
-import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.List;
-
 import com.ak.uobtimetable.API.Models;
 import com.ak.uobtimetable.Fragments.SessionListsFragment;
 import com.ak.uobtimetable.Fragments.TermDatesFragment;
+import com.ak.uobtimetable.Notifications.SessionReminderNotifier;
+import com.ak.uobtimetable.Utilities.AndroidUtilities;
 import com.ak.uobtimetable.Utilities.Logging.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
-import com.ak.uobtimetable.Utilities.AndroidUtilities;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity
 
     private SettingsManager settings;
 
+    private int devButtonClicks = 0;
     private boolean showMenu = true;
 
     private final String TITLE_DEFAULT = "UoB timetable";
@@ -72,6 +74,15 @@ public class MainActivity extends AppCompatActivity
 
         Logger.getInstance().debug("MainActivity", "onCreate");
 
+        if (getIntent() != null){
+            Intent intent = getIntent();
+            String session_hash_key = "notification_session_hash";
+            if (intent.hasExtra(session_hash_key)) {
+                String session_hash = intent.getStringExtra(session_hash_key);
+                Logger.getInstance().debug("MainActivity", "Started from session reminder notification: " + session_hash);
+            }
+        }
+
         settings = SettingsManager.getInstance(this);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.tbToolbar);
@@ -86,25 +97,22 @@ public class MainActivity extends AppCompatActivity
         // Init drawer
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, dlDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        dlDrawer.setDrawerListener(toggle);
+        dlDrawer.addDrawerListener(toggle);
         toggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         // Change the icon shown in the task switcher to a white icon,
-        // otherwise the icon is red on red
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
-            TypedValue typedValue = new TypedValue();
-            Resources.Theme theme = getTheme();
-            theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
-            int colour = typedValue.data;
+        // otherwise the icon is red on red. Only needed up to Pie, which
+        // uses the adaptive icon.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
 
             Bitmap whiteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.uob_logo);
+            int appColour = ContextCompat.getColor(this, R.color.colorPrimary);
 
-            ActivityManager.TaskDescription description =
-                    new ActivityManager.TaskDescription(null, whiteIcon, colour);
+            //noinspection deprecation
+            ActivityManager.TaskDescription description = new ActivityManager.TaskDescription(null, whiteIcon, appColour);
             setTaskDescription(description);
         }
 
@@ -215,7 +223,7 @@ public class MainActivity extends AppCompatActivity
                 .setPositiveButton("Sure", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                    AndroidUtilities.openPlayStorePage(MainActivity.this);
+                        AndroidUtilities.openPlayStorePage(MainActivity.this);
                     }
                 })
                 .setTitle("Rate in Play Store")
@@ -224,6 +232,23 @@ public class MainActivity extends AppCompatActivity
             d.show();
             settings.setShownRateDialog();
         }
+
+        // Open dev activity when the app bar is clicked repeatedly
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                devButtonClicks++;
+
+                if (devButtonClicks >= 7) {
+                    devButtonClicks = 0;
+
+                    Logger.getInstance().debug("MainActivity", "Triggered developer activity");
+
+                    startActivity(new Intent(getBaseContext(), DeveloperActivity.class));
+                }
+            }
+        });
     }
 
     @Override
@@ -425,7 +450,7 @@ public class MainActivity extends AppCompatActivity
 
         // As well as changing visibility, store the visible state. We'll need this later in case
         // we attempt to set menu visibility before the menu has been created.
-        showMenu = visible.booleanValue();
+        showMenu = visible;
 
         meMain.setGroupVisible(R.id.grMainGroup, showMenu);
     }
@@ -475,7 +500,6 @@ public class MainActivity extends AppCompatActivity
 
         // Toggle value
         boolean showingHidden = settings.toggleShowHiddenSessions();
-
         Logger.getInstance().debug("MainActivity", "toggleShowHideSessions - Showing hidden: " + showingHidden);
 
         // Show message
@@ -483,6 +507,12 @@ public class MainActivity extends AppCompatActivity
 
         // Update fragment
         frSessions.refreshLists();
+
+        // Update notification alarms, as some sessions may now be visible
+        if (settings.getNotificationSessionRemindersEnabled()) {
+            SessionReminderNotifier notifier = new SessionReminderNotifier(this);
+            notifier.setAlarms(settings.getSessions(), settings.getNotificationSessionRemindersMinutes());
+        }
     }
 
     public void showSessionSnackbar(List<Models.DisplaySession> sessions, boolean showingHidden,
@@ -542,20 +572,21 @@ public class MainActivity extends AppCompatActivity
 
         String version = AndroidUtilities.buildVersionName(this);
         String title = String.format("About (version %s)", version);
-        String body = String
-            .format("Developed by <a href=\"https://adriankeenan.co.uk\">Adrian Keenan</a>. " +
-                "Source code available on <a href=\"https://github.com/adriankeenan\">GitHub</a>.<br><br>" +
-                "Third-party libraries:<br>" +
-                "<a href=\"http://square.github.io/okhttp/\">square/okhttp</a> (Apache 2.0)<br>" +
-                "<a href=\"https://github.com/google/gson\">google/gson</a> (Apache 2.0)<br>" +
-                "<a href=\"https://commons.apache.org/proper/commons-lang/\">apache/commons-lang</a> (Apache 2.0)<br>" +
-                "<a href=\"https://github.com/h6ah4i/android-tablayouthelper\">h6ah4i/android-tablayouthelper</a> (Apache 2.0)<br>" +
-                "<a href=\"https://github.com/bugsnag/bugsnag-android\">bugsnag/bugsnag-android</a> (MIT)<br>" +
-                "<br>" +
-                getString(R.string.text_disclaimer) +
-                "<br><br>" +
-                "To find out about analytics data captured by this application, please read the " +
-                "<a href=\"https://adriankeenan.co.uk/uobtimetable/privacypolicy\">Privacy Policy</a>.");
+        String body = "Developed by <a href=\"https://adriankeenan.co.uk\">Adrian Keenan</a>.<br><br>" +
+            "<a href=\"https://github.com/adriankeenan/uob-timetable-android\">Source code</a> " +
+            "and <a href=\"https://github.com/adriankeenan/uob-timetable-android/releases\">changelog</a> available on GitHub.<br><br>" +
+            "Third-party libraries:<br>" +
+            "<a href=\"http://square.github.io/okhttp/\">square/okhttp</a> (Apache 2.0)<br>" +
+            "<a href=\"https://github.com/google/gson\">google/gson</a> (Apache 2.0)<br>" +
+            "<a href=\"https://commons.apache.org/proper/commons-lang/\">apache/commons-lang</a> (Apache 2.0)<br>" +
+            "<a href=\"https://github.com/JakeWharton/ThreeTenABP\">JakeWharton/ThreeTenABP</a> (Apache 2.0)<br>" +
+            "<a href=\"https://github.com/h6ah4i/android-tablayouthelper\">h6ah4i/android-tablayouthelper</a> (Apache 2.0)<br>" +
+            "<a href=\"https://github.com/bugsnag/bugsnag-android\">bugsnag/bugsnag-android</a> (MIT)<br>" +
+            "<br>" +
+            getString(R.string.text_disclaimer) +
+            "<br><br>" +
+            "To find out about analytics data captured by this application, please read the " +
+            "<a href=\"https://adriankeenan.co.uk/uobtimetable/privacypolicy\">Privacy Policy</a>.";
 
         AlertDialog d = new AlertDialog.Builder(this)
             .setPositiveButton(R.string.dialog_dismiss, null)

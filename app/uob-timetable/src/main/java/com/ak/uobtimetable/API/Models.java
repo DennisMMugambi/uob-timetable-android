@@ -1,8 +1,10 @@
 package com.ak.uobtimetable.API;
 
 import org.apache.commons.lang3.StringUtils;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -130,10 +132,10 @@ public class Models {
 
         public TimeState getState(){
 
-            Calendar calendar = Calendar.getInstance();
+            ZonedDateTime date = ZonedDateTime.now(ZoneId.of("Europe/London"));
 
             // Get current day of week
-            int currentDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 2;
+            int currentDayOfWeek = date.getDayOfWeek().getValue() - 1;
 
             // Set timestate based on day
             // If after Friday, count sessions as in the future
@@ -151,7 +153,7 @@ public class Models {
             String[] endTimeParts = end.split(":");
             int endTimeMinutes = (Integer.parseInt(endTimeParts[0]) * 60) + Integer.parseInt(endTimeParts[1]);
 
-            int currentTimeMinutes = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
+            int currentTimeMinutes = date.getHour() * 60 + date.getMinute();
 
             if (currentTimeMinutes < startTimeMinutes)
                 return TimeState.Future;
@@ -159,6 +161,19 @@ public class Models {
                 return TimeState.Elapsed;
             else
                 return TimeState.Ongoing;
+        }
+
+        public DayOfWeek getDayOfWeek(){
+
+            return new DayOfWeek[]{
+                DayOfWeek.MONDAY,
+                DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
+                DayOfWeek.FRIDAY,
+                DayOfWeek.SATURDAY,
+                DayOfWeek.SUNDAY
+            }[this.day];
         }
 
         public boolean equals(Session other){

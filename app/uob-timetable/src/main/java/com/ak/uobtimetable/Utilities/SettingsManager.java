@@ -26,23 +26,27 @@ public class SettingsManager {
     private SharedPreferences sharedPrefs;
     private SharedPreferences.Editor editor;
 
-    public static final int SETTINGS_VERSION = 1;
-    public static final String PREF_NAME = "prefs";
-    public static final int PREF_INDEX = 0;
+    private static final int SETTINGS_VERSION = 1;
+    private static final String PREF_NAME = "prefs";
+    private static final int PREF_INDEX = 0;
 
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     private static SettingsManager instance;
 
     private enum Settings {
+        // User preferences
+        longRoomNames,
         refreshWiFi,
         refreshCellular,
+        notifySessionRemindersEnabled,
+        notifySessionRemindersMinutes,
+        showHiddenSessions,
+        // Internal
         savedSessions,
         savedSessionsTime,
         savedCourse,
         timetableUrl,
-        longRoomNames,
-        showHiddenSessions,
         launchCount,
         shownRateDialog,
         completedTutorial
@@ -304,6 +308,26 @@ public class SettingsManager {
     public boolean getCompletedTutorial(){
 
         return getBool(Settings.completedTutorial, false);
+    }
+
+    public void setNotificationSessionRemindersEnabled(boolean enabled){
+
+        setBool(Settings.notifySessionRemindersEnabled, enabled);
+    }
+
+    public boolean getNotificationSessionRemindersEnabled(){
+
+        return getBool(Settings.notifySessionRemindersEnabled, true);
+    }
+
+    public void setNotificationSessionRemindersMinutes(int minutes){
+
+        setInt(Settings.notifySessionRemindersMinutes, minutes);
+    }
+
+    public int getNotificationSessionRemindersMinutes(){
+
+        return getInt(Settings.notifySessionRemindersMinutes, 30);
     }
 
     public void clear(){

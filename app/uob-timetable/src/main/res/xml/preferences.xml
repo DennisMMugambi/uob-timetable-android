@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- The last CheckboxPreference in the second category is not animating like the other
-         checkboxes. This appears to be a bug in the framework:
-         https://code.google.com/p/android/issues/detail?id=200500 -->
+    <PreferenceCategory
+        android:title="@string/preference_category_notifications">
+
+        <CheckBoxPreference
+            android:key="notifySessionRemindersEnabled"
+            android:title="@string/setting_notify_session_reminders_enabled"
+            android:summaryOn="@string/pref_notify_session_reminders_enabled_on"
+            android:summaryOff="@string/pref_notify_session_reminders_enabled_off"
+            android:persistent="false"/>
+
+        <ListPreference
+            android:key="notifySessionRemindersMinutes"
+            android:title="@string/setting_notify_session_reminders_minutes"
+            android:summary="@string/pref_notify_session_reminders_minutes"
+            android:entries="@array/pref_notify_session_reminders_minutes_labels"
+            android:entryValues="@array/pref_notify_session_reminders_minutes_values"
+            android:persistent="false"/>
+
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/preference_category_display">

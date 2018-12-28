@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.TypedValue;
 import android.view.View;
 
 import com.ak.uobtimetable.BuildConfig;

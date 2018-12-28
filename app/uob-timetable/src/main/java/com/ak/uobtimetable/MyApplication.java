@@ -7,9 +7,10 @@ import com.ak.uobtimetable.Utilities.Logging.AndroidLogger;
 import com.ak.uobtimetable.Utilities.Logging.BugsnagLogger;
 import com.ak.uobtimetable.Utilities.Logging.Logger;
 import com.ak.uobtimetable.Utilities.Logging.MemoryLogger;
+import com.ak.uobtimetable.Notifications.SessionReminderNotifier;
 import com.ak.uobtimetable.Utilities.SettingsManager;
-import com.bugsnag.android.Bugsnag;
 import com.bugsnag.android.Configuration;
+import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,6 +37,8 @@ public class MyApplication extends Application {
         settings.clearOldData();
 
         String loggerKey = "Application";
+
+        AndroidThreeTen.init(this);
 
         // Init logger
         Logger.getInstance()
@@ -81,6 +84,12 @@ public class MyApplication extends Application {
             .info(loggerKey, "Launch count: " +  settings.incrementLaunchCount())
             .info(loggerKey, "Network: " + AndroidUtilities.getNetworkRaw(this))
             .info(loggerKey, "Tablet layout: " + AndroidUtilities.isTabletLayout(this));
+
+        // Init notification channels
+        SessionReminderNotifier notifier = new SessionReminderNotifier(this);
+        notifier.setup();
+        if (settings.getNotificationSessionRemindersEnabled() && settings.hasSessions())
+            notifier.setAlarms(settings.getSessions(), settings.getNotificationSessionRemindersMinutes());
     }
 
     private String getBuildTypeString(){
