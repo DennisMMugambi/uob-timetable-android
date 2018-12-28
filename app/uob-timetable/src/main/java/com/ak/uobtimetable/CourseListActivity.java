@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -54,6 +55,11 @@ public class CourseListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_course_list);
+
+        Logger.getInstance().debug("CourseListActivity", "onCreate");
+
+        // Show back button in actionbar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Get references to UI elements
         lvCourses = (ListView)findViewById(R.id.lvCourses);
@@ -152,6 +158,17 @@ public class CourseListActivity extends AppCompatActivity {
         outState.putInt(Args.levelIndex.name(), spLevels.getSelectedItemPosition());
 
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == android.R.id.home){
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void updateCourseList(int departmentIndex, int levelIndex){

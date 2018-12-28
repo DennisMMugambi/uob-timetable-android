@@ -2,6 +2,7 @@ package com.ak.uobtimetable;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 
 import com.ak.uobtimetable.Utilities.Logging.Logger;
 
@@ -17,6 +18,9 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         Logger.getInstance().debug("SettingsActivity", "onCreate");
+
+        // Show back button in actionbar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -33,5 +37,16 @@ public class SettingsActivity extends AppCompatActivity {
         super.onResume();
 
         Logger.getInstance().debug("SettingsActivity", "OnResume");
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == android.R.id.home){
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

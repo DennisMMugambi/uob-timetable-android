@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -19,6 +20,9 @@ import com.ak.uobtimetable.Utilities.SettingsManager;
 
 import java.util.List;
 
+/**
+ * Hidden activity which displays the application log.
+ */
 public class DeveloperActivity extends AppCompatActivity {
 
     private TextView tvLog;
@@ -34,6 +38,9 @@ public class DeveloperActivity extends AppCompatActivity {
         setContentView(R.layout.activity_developer);
 
         Logger.getInstance().debug("DeveloperActivity", "onCreate");
+
+        // Show back button in actionbar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Get UI references
         tvLog = (TextView)findViewById(R.id.tvLog);
@@ -136,5 +143,16 @@ public class DeveloperActivity extends AppCompatActivity {
         super.onResume();
 
         Logger.getInstance().debug("DeveloperActivity", "OnResume");
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == android.R.id.home){
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
