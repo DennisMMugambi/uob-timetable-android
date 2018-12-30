@@ -19,17 +19,15 @@ import com.ak.uobtimetable.Utilities.Logging.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
 
 import org.apache.commons.lang3.StringUtils;
-import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import java.util.Calendar;
 import java.util.List;
 
 public class SessionReminderNotifier {
 
-    public static final String SESSION_HASH_KEY = "session_hash";
+    public static final String SESSION_HASH_PARAM = "session_hash";
     public static final String CHANNEL_ID_SESSION_REMINDERS = "session_reminders";
     protected Context context;
 
@@ -54,6 +52,9 @@ public class SessionReminderNotifier {
     }
 
     public void showSessionReminder(Models.DisplaySession session){
+
+        // Get incrementing notification ID
+        int id = SettingsManager.getInstance(context).getNotificationId();
 
         String title = session.isValid ? session.moduleName : "Unknown module";
         String description = String.format(
@@ -83,13 +84,14 @@ public class SessionReminderNotifier {
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
-        notificationManager.notify((int)Calendar.getInstance().getTimeInMillis(), mBuilder.build());
+        notificationManager.notify(id, mBuilder.build());
+
+        Logger.getInstance().debug("SessionReminderNotifier", "Created session reminder notification " + id);
     }
 
     public void setAlarms(List<Models.DisplaySession> sessions, int minutesBefore){
 
-        SettingsManager settings = new SettingsManager(context);
-        boolean includeHidden = settings.getShowHiddenSessions();
+        boolean includeHidden = SettingsManager.getInstance(context).getShowHiddenSessions();
 
         // Schedule alarms if visible, or hidden sessions are being displayed
         for (Models.DisplaySession session : sessions){
@@ -139,7 +141,7 @@ public class SessionReminderNotifier {
         logMessage.append(session.hash);
         logMessage.append(" at ");
         logMessage.append(date.format(DateTimeFormatter.ofPattern("E HH:mm:ss dd/MM/yy")));
-        Logger.getInstance().info("Notifications", logMessage.toString());
+        Logger.getInstance().info("SessionReminderNotifier", logMessage.toString());
     }
 
     private PendingIntent getAlarmPendingIntent(Models.DisplaySession session){
@@ -153,7 +155,7 @@ public class SessionReminderNotifier {
         Uri sessionHashUri = new Uri.Builder()
             .scheme("com.ak.uobtimetable")
             .authority("session")
-            .appendQueryParameter("session_hash", session.hash)
+            .appendQueryParameter(SESSION_HASH_PARAM, session.hash)
             .build();
 
         Intent cancelIntent = new Intent(context, SessionReminderReceiver.class).setData(sessionHashUri);

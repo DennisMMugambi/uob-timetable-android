@@ -49,7 +49,8 @@ public class SettingsManager {
         timetableUrl,
         launchCount,
         shownRateDialog,
-        completedTutorial
+        completedTutorial,
+        notificationId,
     }
 
     public SettingsManager(Context context) {
@@ -328,6 +329,21 @@ public class SettingsManager {
     public int getNotificationSessionRemindersMinutes(){
 
         return getInt(Settings.notifySessionRemindersMinutes, 30);
+    }
+
+    public int getNotificationId(){
+
+        // Increment previous value
+        int currentId = getInt(Settings.notificationId, 0);
+        currentId++;
+
+        // Roll back to 0 when overflowing
+        if (currentId < 0)
+            currentId = 0;
+
+        setInt(Settings.notificationId, currentId);
+
+        return currentId;
     }
 
     public void clear(){

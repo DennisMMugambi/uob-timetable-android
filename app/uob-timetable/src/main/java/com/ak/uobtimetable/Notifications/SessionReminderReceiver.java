@@ -17,9 +17,8 @@ public class SessionReminderReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        //
         if (intent.getAction() != null && intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
-            Logger.getInstance().info("Notifications", "SessionReminderReceiver BOOT_COMPLETED received");
+            Logger.getInstance().info("SessionReminderReceiver", "SessionReminderReceiver BOOT_COMPLETED received");
         } else {
             singleEvent(context, intent);
         }
@@ -33,19 +32,19 @@ public class SessionReminderReceiver extends BroadcastReceiver {
     private void singleEvent(Context context, Intent intent){
 
         SettingsManager settings = new SettingsManager(context);
-        Logger.getInstance().info("Notifications", "Received session reminder notification event");
+        Logger.getInstance().info("SessionReminderReceiver", "Received session reminder notification event");
 
         // Stop if sessions are no longer enabled
         if (settings.getNotificationSessionRemindersEnabled() == false) {
-            Logger.getInstance().error("Notifications", "Preventing notification - notifications disabled");
+            Logger.getInstance().error("SessionReminderReceiver", "Preventing notification - notifications disabled");
             return;
         }
 
         // Get session hash from intent
-        String sessionHash = intent.getData().getQueryParameter("session_hash");
+        String sessionHash = intent.getData().getQueryParameter(SessionReminderNotifier.SESSION_HASH_PARAM);
 
         if (sessionHash == null || sessionHash.length() == 0){
-            Logger.getInstance().error("Notifications", "Empty session_hash");
+            Logger.getInstance().error("SessionReminderReceiver", "Empty session_hash");
             return;
         }
 
@@ -62,14 +61,14 @@ public class SessionReminderReceiver extends BroadcastReceiver {
         // Check whether session is found
         if (selectedSession == null) {
             Map<String, String> meta = new HashMap<>();
-            Logger.getInstance().info("Notifications", "No session found for notification");
+            Logger.getInstance().info("SessionReminderReceiver", "No session found for notification");
             return;
         }
 
         // Ignore if session is no longer visible and hidden sessions are not visible
         if (selectedSession.visible == false && settings.getShowHiddenSessions() == false){
             Map<String, String> meta = new HashMap<>();
-            Logger.getInstance().info("Notifications", "Session for notification is no longer visible");
+            Logger.getInstance().info("SessionReminderReceiver", "Session for notification is no longer visible");
             return;
         }
 
@@ -78,7 +77,7 @@ public class SessionReminderReceiver extends BroadcastReceiver {
         notifier.showSessionReminder(selectedSession);
 
         // Reschedule for next time
-        Logger.getInstance().info("Notifications", "Rescheduling session reminder alarm");
+        Logger.getInstance().info("SessionReminderReceiver", "Rescheduling session reminder alarm");
         notifier.scheduleAlarm(selectedSession, settings.getNotificationSessionRemindersMinutes());
     }
 }
