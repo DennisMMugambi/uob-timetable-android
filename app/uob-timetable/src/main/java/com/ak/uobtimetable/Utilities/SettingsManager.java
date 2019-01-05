@@ -222,7 +222,7 @@ public class SettingsManager {
 
     public boolean hasCourse(){
 
-        return getCourse() != null;
+        return getString(Settings.savedCourse, null) != null;
     }
 
     public Models.Course getCourse(){
@@ -253,7 +253,7 @@ public class SettingsManager {
 
     public boolean hasSessions(){
 
-        return getSessions() != null;
+        return getString(Settings.savedSessions, null) != null;
     }
 
     public void setSessions(List<Models.DisplaySession> sessions, boolean updateTime){
