@@ -18,7 +18,7 @@ public class SessionReminderReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         if (intent.getAction() != null && intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
-            Logger.getInstance().info("SessionReminderReceiver", "SessionReminderReceiver BOOT_COMPLETED received");
+            bootEvent(context, intent);
         } else {
             singleEvent(context, intent);
         }
@@ -27,6 +27,16 @@ public class SessionReminderReceiver extends BroadcastReceiver {
 
     private void bootEvent(Context context, Intent intent){
 
+        // Register here on boot, as these are not persisted when the device reboots
+        Logger.getInstance().info("SessionReminderReceiver", "SessionReminderReceiver BOOT_COMPLETED received");
+
+        SettingsManager settings = new SettingsManager(context);
+
+        // Register if enabled and we have sessions (session list may be null if application was never setup)
+        if (settings.getNotificationSessionRemindersEnabled() && settings.hasSessions()) {
+            SessionReminderNotifier notifier = new SessionReminderNotifier(context);
+            notifier.setAlarms(settings.getSessions(), settings.getNotificationSessionRemindersMinutes());
+        }
     }
 
     private void singleEvent(Context context, Intent intent){

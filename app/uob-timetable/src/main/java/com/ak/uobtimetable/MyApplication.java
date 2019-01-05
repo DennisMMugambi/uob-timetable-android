@@ -88,8 +88,6 @@ public class MyApplication extends Application {
         // Init notification channels
         SessionReminderNotifier notifier = new SessionReminderNotifier(this);
         notifier.setup();
-        if (settings.getNotificationSessionRemindersEnabled() && settings.hasSessions())
-            notifier.setAlarms(settings.getSessions(), settings.getNotificationSessionRemindersMinutes());
     }
 
     private String getBuildTypeString(){
