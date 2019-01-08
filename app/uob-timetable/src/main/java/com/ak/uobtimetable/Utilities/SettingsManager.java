@@ -180,7 +180,7 @@ public class SettingsManager {
 
     // Custom
     public boolean getLongRoomNames(){
-        return getBool(Settings.longRoomNames, false);
+        return getBool(Settings.longRoomNames, true);
     }
 
     public void setLongRoomNames(boolean longRoomNames){
