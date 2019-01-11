@@ -67,12 +67,7 @@ public class PreferencesFragment extends PreferenceFragment {
 
                 String key = preference.getKey();
 
-                StringBuilder logMessage = new StringBuilder();
-                logMessage.append("Changed ");
-                logMessage.append(key);
-                logMessage.append(" to ");
-                logMessage.append(value);
-
+                String logMessage = String.format("Changed %s to %s", key, value);
                 Logger.getInstance().debug("PreferenceFragment", logMessage.toString());
 
                 // Save preference change
