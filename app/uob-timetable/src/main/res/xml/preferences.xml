@@ -17,6 +17,7 @@
             android:summary="@string/pref_notify_session_reminders_minutes"
             android:entries="@array/pref_notify_session_reminders_minutes_labels"
             android:entryValues="@array/pref_notify_session_reminders_minutes_values"
+            android:dependency="notifySessionRemindersEnabled"
             android:persistent="false"/>
 
     </PreferenceCategory>
