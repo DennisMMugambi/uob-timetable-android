@@ -25,10 +25,8 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
@@ -40,7 +38,12 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/activity_settings_label"
-            android:logo="@drawable/uob_logo" />
+            android:logo="@drawable/uob_logo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".DeveloperActivity"
             android:label="@string/activity_developer_label"
