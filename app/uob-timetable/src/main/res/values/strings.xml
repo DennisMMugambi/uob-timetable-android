@@ -21,6 +21,7 @@
     <string name="text_tutorial_hide_sessions">You can enter edit mode to hide sessions by holding a session. You can then toggle the viewing of hidden sessions from the menu.</string>
     <string name="text_cant_toggle_show_hide">You need to exit edit mode, by holding down on a session, before you can toggle hidden sessions.</string>
     <string name="text_no_sessions">No sessions to display.</string>
+    <string name="text_no_courses">No courses for this department and level.</string>
     <string name="text_loading_cached_sessions">Loading cached sessions instead.</string>
     <string name="text_course_invalid">Your selected course is no longer accessible. Please reselect your course from the list.</string>
     <string name="text_session_invalid">Some details for this session are missing due to an issue with the university system. Check the timetable website for full session details.</string>

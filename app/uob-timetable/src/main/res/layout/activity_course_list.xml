@@ -23,25 +23,40 @@
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:id="@+id/spDepartments"/>
 
     <Spinner
+        android:id="@+id/spLevels"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/spLevels"/>
+        android:visibility="visible" />
 
-    <ListView
-        android:id="@+id/lvCourses"
+    <!-- We're wrapping the ListView and empty view TextView because this
+         way we can hide the container until data has loaded, preventing
+         the empty view TextView from showing before the ListView has been
+         populated with data. -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_height="wrap_content"
-        android:fastScrollEnabled="true" />
+        android:orientation="vertical"
+        android:id="@+id/llCoursesLayout">
+
+        <TextView
+            android:id="@+id/tvListEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_no_courses"
+            android:layout_margin="5dp"
+            android:textColor="@color/colorTextDisabled"
+            android:textSize="14dp"
+            android:gravity="center" />
+
+        <ListView
+            android:id="@+id/lvCourses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fastScrollEnabled="true" />
+
+    </LinearLayout>
 
 </LinearLayout>

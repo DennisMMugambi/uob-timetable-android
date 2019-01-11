@@ -4,28 +4,30 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.ak.uobtimetable.API.Service;
 import com.ak.uobtimetable.API.Models;
+import com.ak.uobtimetable.API.Service;
 import com.ak.uobtimetable.Exceptions.HTTPException;
 import com.ak.uobtimetable.ListAdapters.CourseListAdapter;
 import com.ak.uobtimetable.Utilities.AndroidUtilities;
 import com.ak.uobtimetable.Utilities.Logging.Logger;
 import com.ak.uobtimetable.Utilities.SettingsManager;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Activity which allows the user to select their course.
@@ -35,7 +37,10 @@ public class CourseListActivity extends AppCompatActivity {
     public Spinner spDepartments;
     public Spinner spLevels;
     public ListView lvCourses;
+    public TextView tvListEmpty;
     public ProgressBar pbDownload;
+    public LinearLayout llCoursesLayout;
+
     public List<View> enableControls;
 
     public List<Models.Department> departments = new ArrayList<>();
@@ -63,19 +68,23 @@ public class CourseListActivity extends AppCompatActivity {
 
         // Get references to UI elements
         lvCourses = (ListView)findViewById(R.id.lvCourses);
+        tvListEmpty = (TextView)findViewById(R.id.tvListEmpty);
         spDepartments = (Spinner)findViewById(R.id.spDepartments);
         spLevels = (Spinner)findViewById(R.id.spLevels);
         pbDownload = (ProgressBar)findViewById(R.id.pbDownload);
+        llCoursesLayout = (LinearLayout)findViewById(R.id.llCoursesLayout);
 
         pbDownload.setVisibility(View.INVISIBLE);
+        lvCourses.setEmptyView(tvListEmpty);
 
         // Hide certain controls until we have data to populate them
         enableControls = new ArrayList<>();
         enableControls.add(spDepartments);
         enableControls.add(spLevels);
+        enableControls.add(llCoursesLayout);
 
         for (View control : enableControls)
-            control.setVisibility(View.INVISIBLE);
+            control.setVisibility(View.GONE);
 
         // Copy the selected department index from previous instance state
         if (savedInstanceState != null) {
