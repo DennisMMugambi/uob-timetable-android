@@ -51,15 +51,8 @@ public class MyApplication extends Application {
         if (bugsnagKey.equals("null")){
             Logger.getInstance().error(loggerKey, "Can't init Bugsnag - No key");
         } else {
-            String[] bugsnagVersionParts = {
-                    BuildConfig.VERSION_NAME,
-                    Integer.valueOf(BuildConfig.VERSION_CODE).toString(),
-                    BuildConfig.GIT_COMMIT_HASH
-            };
-            String bugsnagVersion = StringUtils.join(bugsnagVersionParts, ":");
-
             Configuration config = new Configuration(bugsnagKey);
-            config.setAppVersion(bugsnagVersion);
+            config.setAppVersion(BuildConfig.VERSION_NAME);
             config.setReleaseStage(getBuildTypeString());
 
             Logger.getInstance()
