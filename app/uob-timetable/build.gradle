@@ -1,12 +1,16 @@
 apply plugin: 'com.android.application'
 
 def gitRevParse = { arg ->
-    def stdout = new ByteArrayOutputStream()
-    exec {
-        commandLine 'git', 'rev-parse', arg, 'HEAD'
-        standardOutput = stdout
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', arg, 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    } catch (Exception e) {
+        return "Git error"
     }
-    return stdout.toString().trim()
 }
 
 android {
