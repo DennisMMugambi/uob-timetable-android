@@ -44,11 +44,10 @@ public class SessionReminderReceiver extends BroadcastReceiver {
         SettingsManager settings = new SettingsManager(context);
         Logger.getInstance().info("SessionReminderReceiver", "Received session reminder notification event");
 
-        // Stop if sessions are no longer enabled
-        if (settings.getNotificationSessionRemindersEnabled() == false) {
-            Logger.getInstance().error("SessionReminderReceiver", "Preventing notification - notifications disabled");
+        // Stop if sessions are no longer enabled. The alarm has not been rescheduled at this point
+        // so this should only happen once per alarm after disabling notifications.
+        if (settings.getNotificationSessionRemindersEnabled() == false)
             return;
-        }
 
         // Get session hash from intent
         String sessionHash = intent.getData().getQueryParameter(SessionReminderNotifier.SESSION_HASH_PARAM);
