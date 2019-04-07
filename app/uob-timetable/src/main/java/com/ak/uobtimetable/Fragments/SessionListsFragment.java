@@ -584,7 +584,7 @@ public class SessionListsFragment extends Fragment {
                 // Build alert dialog. Show either a generic error dialog, or a custom
                 // dialog for invalid course errors.
 
-                // API currently only returns error strings and not codes...
+                // Check for invalid course
                 boolean isCourseInvalidError =
                     response != null &&
                     response.error &&
@@ -628,6 +628,8 @@ public class SessionListsFragment extends Fragment {
 
             // Save to settings
             settings.setSessions(sessions, true);
+            settings.setSessionsCourseName(response.courseName);
+            settings.setSessionsDateRange(response.dateRange);
             settings.setTimetableUrl(response.timetableUrl);
 
             // Update notification alarms

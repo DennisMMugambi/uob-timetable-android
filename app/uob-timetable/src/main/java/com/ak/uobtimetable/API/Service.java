@@ -156,6 +156,8 @@ public class Service {
         if (response.sessions.size() == 0) {
             HashMap<String, String> metadata = new HashMap<>();
             metadata.put("url", url);
+            metadata.put("course_name", response.courseName);
+            metadata.put("date_range", response.dateRange);
             Logger.getInstance().warn("Service", "0 sessions in response", metadata);
         }
 

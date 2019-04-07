@@ -64,6 +64,8 @@ public class Models {
 
     public class SessionResponse extends Response {
         public String timetableUrl;
+        public String courseName;
+        public String dateRange;
         public List<DisplaySession> sessions;
     }
 

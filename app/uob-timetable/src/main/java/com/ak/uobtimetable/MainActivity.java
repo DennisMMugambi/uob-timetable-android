@@ -85,6 +85,20 @@ public class MainActivity extends AppCompatActivity
 
         settings = SettingsManager.getInstance(this);
 
+        // Log saved details if we have any. This allows us to view some data which is useful for
+        // debugging but not displayed in the UI.
+        StringBuilder logSessionsInfo = new StringBuilder();
+        if (settings.hasSessions()){
+            logSessionsInfo.append(settings.getSessions().size() + " saved sessions");
+            if (settings.hasSessionsCourseName())
+                logSessionsInfo.append(" - " + settings.getSessionsCourseName());
+            if (settings.hasSessionsDateRange())
+                logSessionsInfo.append(" - " + settings.getSessionsDateRange());
+        } else {
+            logSessionsInfo.append("No saved sessions");
+        }
+        Logger.getInstance().info("Settings", logSessionsInfo.toString());
+
         Toolbar toolbar = (Toolbar)findViewById(R.id.tbToolbar);
         setSupportActionBar(toolbar);
 

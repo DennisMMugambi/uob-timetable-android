@@ -45,6 +45,8 @@ public class SettingsManager {
         // Internal
         savedSessions,
         savedSessionsTime,
+        savedSessionsCourseName,
+        savedSessionsDateRange,
         savedCourse,
         timetableUrl,
         launchCount,
@@ -279,6 +281,36 @@ public class SettingsManager {
     public String getTimetableUrl(){
 
         return getString(Settings.timetableUrl, null);
+    }
+
+    public void setSessionsCourseName(String courseName){
+
+        setString(Settings.savedSessionsCourseName, courseName);
+    }
+
+    public boolean hasSessionsCourseName(){
+
+        return getSessionsCourseName() != null;
+    }
+
+    public String getSessionsCourseName(){
+
+        return getString(Settings.savedSessionsCourseName, null);
+    }
+
+    public void setSessionsDateRange(String dateRange){
+
+        setString(Settings.savedSessionsDateRange, dateRange);
+    }
+
+    public boolean hasSessionsDateRange(){
+
+        return getSessionsDateRange() != null;
+    }
+
+    public String getSessionsDateRange(){
+
+        return getString(Settings.savedSessionsDateRange, null);
     }
 
     public String getSessionsUpdatedTimeAgo(){
