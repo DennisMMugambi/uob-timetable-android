@@ -50,6 +50,7 @@ public class Models {
     public class Session {
         public String moduleName;
         public int day;
+        public String dayName;
         public String start;
         public String end;
         public float length;
@@ -74,10 +75,6 @@ public class Models {
         public DisplaySession(){
 
             visible = true;
-        }
-
-        public String getDay(){
-            return new String[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" }[day];
         }
 
         public String getTitle(){
@@ -117,7 +114,7 @@ public class Models {
 
             StringBuilder sb = new StringBuilder();
 
-            sb.append("On " + getDay() + "\n");
+            sb.append("On " + dayName + "\n");
             sb.append("At " + start + "\n");
             sb.append("For " + lengthStr + "\n");
 
