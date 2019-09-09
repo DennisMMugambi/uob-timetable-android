@@ -1,9 +1,9 @@
 # UoB timetable
 
+__⚠️ This application has been removed from Google Play more than five years after first being published due to a trademark infringement notice from the University of Bedfordshire. Due to a lack of response from the email addresses listed on the notice it is unlikely that the issue can be resolved leading to the application listing being reinstated. Development has been discontinued because of this.__
+
 This application displays the 5-day timetable for any University of Bedfordshire
 course.
-
-[![Google Play badge](screenshots/assets/google-play-badge.png "Google Play badge")](https://play.google.com/store/apps/details?id=com.ak.uobtimetable)
 
 ![Hero image](screenshots/art/hero.png "Hero image")
 
